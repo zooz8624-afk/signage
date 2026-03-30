@@ -7,247 +7,128 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0c0c12;
-  --surface: #14141f;
-  --surface2: #1e1e2e;
-  --surface3: #252538;
-  --border: #2e2e45;
-  --accent: #5b8aff;
-  --accent2: #8b5bff;
-  --green: #2dce89;
-  --red: #f5365c;
-  --text: #e8e8f5;
-  --text-muted: #6b6b95;
-  --text-dim: #3a3a58;
+  --bg:#0c0c12; --surface:#14141f; --surface2:#1e1e2e; --surface3:#252538;
+  --border:#2e2e45; --accent:#5b8aff; --accent2:#8b5bff;
+  --green:#2dce89; --red:#f5365c; --text:#e8e8f5; --text-muted:#6b6b95; --text-dim:#3a3a58;
 }
-* { margin:0; padding:0; box-sizing:border-box; }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Noto Sans KR', sans-serif;
-  min-height: 100vh;
-}
-body::before {
-  content:'';
-  position:fixed;
-  inset:0;
-  background:
-    radial-gradient(ellipse at 20% 10%, rgba(91,138,255,0.07) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 90%, rgba(139,91,255,0.07) 0%, transparent 50%);
-  pointer-events:none;
-  z-index:0;
-}
-.app { display:flex; min-height:100vh; position:relative; z-index:1; }
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 10%,rgba(91,138,255,0.07) 0%,transparent 50%),radial-gradient(ellipse at 80% 90%,rgba(139,91,255,0.07) 0%,transparent 50%);pointer-events:none;z-index:0;}
+.app{display:flex;min-height:100vh;position:relative;z-index:1;}
 
-/* 사이드바 */
-.sidebar {
-  width: 260px;
-  background: var(--surface);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  position: fixed;
-  top:0; left:0; bottom:0;
-  z-index: 100;
-}
-.sidebar-header { padding: 24px 20px; border-bottom: 1px solid var(--border); }
-.logo {
-  font-size: 18px; font-weight: 900; letter-spacing: -0.03em;
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  margin-bottom: 4px;
-}
-.logo-sub { font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; }
-.sidebar-section { padding: 16px 12px 8px; font-size: 10px; color: var(--text-dim); letter-spacing: 0.12em; text-transform: uppercase; }
+.sidebar{width:260px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;}
+.sidebar-header{padding:24px 20px;border-bottom:1px solid var(--border);}
+.logo{font-size:18px;font-weight:900;letter-spacing:-0.03em;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;}
+.logo-sub{font-size:11px;color:var(--text-muted);letter-spacing:0.08em;}
+.sidebar-section{padding:16px 12px 8px;font-size:10px;color:var(--text-dim);letter-spacing:0.12em;text-transform:uppercase;}
+.location-btn{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:all 0.2s;margin:2px 8px;border:none;background:transparent;color:var(--text-muted);font-family:'Noto Sans KR',sans-serif;font-size:14px;width:calc(100% - 16px);text-align:left;}
+.location-btn:hover{background:var(--surface2);color:var(--text);}
+.location-btn.active{background:rgba(91,138,255,0.12);color:var(--accent);}
+.location-btn .dot{width:8px;height:8px;border-radius:50%;background:var(--text-dim);flex-shrink:0;}
+.location-btn.active .dot{background:var(--accent);box-shadow:0 0 6px var(--accent);}
+.location-btn .count{margin-left:auto;font-size:11px;background:var(--surface3);padding:2px 7px;border-radius:10px;}
+.add-location-btn{display:flex;align-items:center;gap:8px;padding:10px 12px;margin:4px 8px;border-radius:10px;cursor:pointer;color:var(--text-muted);font-size:13px;border:1px dashed var(--border);background:transparent;font-family:'Noto Sans KR',sans-serif;width:calc(100% - 16px);transition:all 0.2s;}
+.add-location-btn:hover{border-color:var(--accent);color:var(--accent);}
+.sidebar-footer{margin-top:auto;padding:16px;border-top:1px solid var(--border);}
+.token-display{font-size:11px;color:var(--text-muted);background:var(--surface2);padding:8px 12px;border-radius:8px;word-break:break-all;line-height:1.5;}
+.token-display span{color:var(--green);font-size:10px;}
 
-.location-btn {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 12px; border-radius: 10px; cursor: pointer;
-  transition: all 0.2s; margin: 2px 8px; border: none;
-  background: transparent; color: var(--text-muted);
-  font-family: 'Noto Sans KR', sans-serif; font-size: 14px;
-  width: calc(100% - 16px); text-align: left;
-}
-.location-btn:hover { background: var(--surface2); color: var(--text); }
-.location-btn.active { background: rgba(91,138,255,0.12); color: var(--accent); }
-.location-btn .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-dim); flex-shrink: 0; }
-.location-btn.active .dot { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
-.location-btn .count { margin-left: auto; font-size: 11px; background: var(--surface3); padding: 2px 7px; border-radius: 10px; }
+.main{margin-left:260px;flex:1;padding:32px;}
+.main-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;}
+.main-title{font-size:24px;font-weight:700;letter-spacing:-0.02em;}
+.main-title span{color:var(--text-muted);font-weight:300;}
 
-.add-location-btn {
-  display: flex; align-items: center; gap: 8px;
-  padding: 10px 12px; margin: 4px 8px; border-radius: 10px;
-  cursor: pointer; color: var(--text-muted); font-size: 13px;
-  border: 1px dashed var(--border); background: transparent;
-  font-family: 'Noto Sans KR', sans-serif; width: calc(100% - 16px);
-  transition: all 0.2s;
-}
-.add-location-btn:hover { border-color: var(--accent); color: var(--accent); }
+.settings-bar{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin-bottom:24px;display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;}
+.settings-bar .field{display:flex;flex-direction:column;gap:6px;flex:1;min-width:160px;}
+.settings-bar label{font-size:11px;color:var(--text-muted);letter-spacing:0.05em;}
+.settings-bar input{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;outline:none;transition:border-color 0.2s;}
+.settings-bar input:focus{border-color:var(--accent);}
+.save-settings-btn{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 18px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.save-settings-btn:hover{border-color:var(--accent);color:var(--accent);}
 
-.sidebar-footer { margin-top: auto; padding: 16px; border-top: 1px solid var(--border); }
-.token-display {
-  font-size: 11px; color: var(--text-muted);
-  background: var(--surface2); padding: 8px 12px;
-  border-radius: 8px; word-break: break-all; line-height: 1.5;
-}
-.token-display span { color: var(--green); font-size: 10px; }
+.monitors-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px;}
 
-/* 메인 */
-.main { margin-left: 260px; flex: 1; padding: 32px; }
-.main-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
-.main-title { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
-.main-title span { color: var(--text-muted); font-weight: 300; }
+.monitor-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;transition:border-color 0.2s;}
+.monitor-card:hover{border-color:rgba(91,138,255,0.4);}
+.monitor-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.monitor-icon{font-size:18px;}
+.monitor-name-input{background:transparent;border:none;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:15px;font-weight:600;outline:none;flex:1;}
+.monitor-id-badge{font-size:10px;color:var(--accent);background:rgba(91,138,255,0.1);padding:3px 8px;border-radius:6px;font-family:monospace;white-space:nowrap;}
+.delete-monitor-btn{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:16px;padding:4px;border-radius:6px;transition:all 0.2s;}
+.delete-monitor-btn:hover{color:var(--red);background:rgba(245,54,92,0.1);}
 
-/* 설정 바 */
-.settings-bar {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 14px; padding: 16px 20px; margin-bottom: 24px;
-  display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;
-}
-.settings-bar .field { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 160px; }
-.settings-bar label { font-size: 11px; color: var(--text-muted); letter-spacing: 0.05em; }
-.settings-bar input {
-  background: var(--surface2); border: 1px solid var(--border);
-  border-radius: 8px; padding: 10px 14px; color: var(--text);
-  font-family: 'Noto Sans KR', sans-serif; font-size: 13px;
-  outline: none; transition: border-color 0.2s;
-}
-.settings-bar input:focus { border-color: var(--accent); }
-.save-settings-btn {
-  background: var(--surface2); border: 1px solid var(--border);
-  border-radius: 8px; padding: 10px 18px; color: var(--text);
-  font-family: 'Noto Sans KR', sans-serif; font-size: 13px;
-  cursor: pointer; transition: all 0.2s; white-space: nowrap;
-}
-.save-settings-btn:hover { border-color: var(--accent); color: var(--accent); }
+.slides-area{padding:16px 20px;}
+.slides-label{font-size:11px;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+.slides-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+.slide-item{display:flex;align-items:center;gap:10px;background:var(--surface2);border-radius:10px;padding:8px 12px;cursor:grab;}
+.slide-item:active{cursor:grabbing;opacity:0.7;}
+.slide-thumb{width:48px;height:32px;border-radius:6px;object-fit:cover;background:var(--surface3);flex-shrink:0;}
+.slide-video-thumb{width:48px;height:32px;border-radius:6px;background:var(--surface3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.slide-info{flex:1;overflow:hidden;}
+.slide-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text);font-size:12px;}
+.slide-type{font-size:10px;color:var(--text-muted);margin-top:2px;}
+.slide-badge-img{color:#5b8aff;}
+.slide-badge-vid{color:#ff8c5b;}
+.slide-del{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px;transition:all 0.2s;}
+.slide-del:hover{color:var(--red);background:rgba(245,54,92,0.1);}
+.no-slides{text-align:center;color:var(--text-dim);font-size:13px;padding:16px 0;}
 
-/* 모니터 그리드 */
-.monitors-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
+/* 빈 슬라이드 전송 안내 */
+.empty-send-hint{text-align:center;color:var(--text-dim);font-size:11px;padding:8px 0 4px;border-top:1px solid var(--border);margin-top:8px;}
 
-/* 모니터 카드 */
-.monitor-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; transition: border-color 0.2s; }
-.monitor-card:hover { border-color: rgba(91,138,255,0.4); }
-.monitor-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
-.monitor-icon { font-size: 18px; }
-.monitor-name-input {
-  background: transparent; border: none; color: var(--text);
-  font-family: 'Noto Sans KR', sans-serif; font-size: 15px;
-  font-weight: 600; outline: none; flex: 1;
-}
-.delete-monitor-btn {
-  background: none; border: none; color: var(--text-dim);
-  cursor: pointer; font-size: 16px; padding: 4px;
-  border-radius: 6px; transition: all 0.2s;
-}
-.delete-monitor-btn:hover { color: var(--red); background: rgba(245,54,92,0.1); }
+.drop-zone{border:1.5px dashed var(--border);border-radius:10px;padding:16px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative;}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--accent);background:rgba(91,138,255,0.04);}
+.drop-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.drop-zone p{font-size:12px;color:var(--text-muted);}
+.dz-icon{font-size:24px;margin-bottom:6px;}
 
-/* 슬라이드 */
-.slides-area { padding: 16px 20px; }
-.slides-label {
-  font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em;
-  text-transform: uppercase; margin-bottom: 12px;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.slides-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
-.slide-item {
-  display: flex; align-items: center; gap: 10px;
-  background: var(--surface2); border-radius: 10px; padding: 8px 12px;
-  font-size: 12px;
-}
-.slide-thumb { width: 40px; height: 30px; border-radius: 6px; object-fit: cover; background: var(--surface3); flex-shrink: 0; }
-.slide-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
-.slide-del { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 14px; padding: 2px 6px; border-radius: 4px; transition: all 0.2s; }
-.slide-del:hover { color: var(--red); background: rgba(245,54,92,0.1); }
-.no-slides { text-align: center; color: var(--text-dim); font-size: 13px; padding: 16px 0; }
+.slide-settings{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.slide-settings label{font-size:11px;color:var(--text-muted);}
+.slide-settings input[type="number"]{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;outline:none;width:70px;transition:border-color 0.2s;}
+.slide-settings input[type="number"]:focus{border-color:var(--accent);}
+.unit{font-size:12px;color:var(--text-muted);}
+.hint{font-size:10px;color:var(--text-dim);margin-left:auto;}
 
-.drop-zone {
-  border: 1.5px dashed var(--border); border-radius: 10px;
-  padding: 16px; text-align: center; cursor: pointer;
-  transition: all 0.2s; position: relative;
-}
-.drop-zone:hover, .drop-zone.drag-over { border-color: var(--accent); background: rgba(91,138,255,0.04); }
-.drop-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-.drop-zone p { font-size: 12px; color: var(--text-muted); }
-.dz-icon { font-size: 24px; margin-bottom: 6px; }
+.monitor-footer{padding:12px 20px 16px;border-top:1px solid var(--border);display:flex;gap:8px;}
+.send-btn{flex:1;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:10px;padding:12px;color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:6px;}
+.send-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(91,138,255,0.35);}
+.send-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none;}
+.send-btn.success{background:linear-gradient(135deg,var(--green),#1a9e65);}
+.send-btn.error-state{background:linear-gradient(135deg,var(--red),#c02040);}
+/* 빈 슬라이드 전송 시 버튼 색상 */
+.send-btn.empty{background:linear-gradient(135deg,#555,#333);}
 
-/* 슬라이드 설정 */
-.slide-settings {
-  padding: 12px 20px; border-top: 1px solid var(--border);
-  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
-}
-.slide-settings label { font-size: 11px; color: var(--text-muted); }
-.slide-settings input[type="number"] {
-  background: var(--surface2); border: 1px solid var(--border);
-  border-radius: 8px; padding: 6px 10px; color: var(--text);
-  font-family: 'Noto Sans KR', sans-serif; font-size: 13px;
-  outline: none; width: 70px; transition: border-color 0.2s;
-}
-.slide-settings input[type="number"]:focus { border-color: var(--accent); }
-.unit { font-size: 12px; color: var(--text-muted); }
+.add-monitor-btn{display:flex;align-items:center;justify-content:center;gap:10px;background:var(--surface);border:1.5px dashed var(--border);border-radius:18px;padding:40px;cursor:pointer;color:var(--text-muted);font-family:'Noto Sans KR',sans-serif;font-size:14px;transition:all 0.2s;width:100%;}
+.add-monitor-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(91,138,255,0.04);}
 
-/* 버튼 */
-.monitor-footer { padding: 12px 20px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
-.send-btn {
-  flex: 1; background: linear-gradient(135deg, var(--accent), var(--accent2));
-  border: none; border-radius: 10px; padding: 12px; color: #fff;
-  font-family: 'Noto Sans KR', sans-serif; font-size: 13px; font-weight: 600;
-  cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;
-}
-.send-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(91,138,255,0.35); }
-.send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
-.send-btn.success { background: linear-gradient(135deg, var(--green), #1a9e65); }
-.send-btn.error-state { background: linear-gradient(135deg, var(--red), #c02040); }
+.broadcast-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:12px;padding:12px 24px;color:#fff;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:8px;}
+.broadcast-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(91,138,255,0.35);}
 
-.add-monitor-btn {
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  background: var(--surface); border: 1.5px dashed var(--border);
-  border-radius: 18px; padding: 40px; cursor: pointer; color: var(--text-muted);
-  font-family: 'Noto Sans KR', sans-serif; font-size: 14px;
-  transition: all 0.2s; width: 100%;
-}
-.add-monitor-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(91,138,255,0.04); }
+.signage-url-box{padding:0 20px 16px;}
+.signage-url-label{font-size:10px;color:var(--text-dim);margin-bottom:4px;}
+.signage-url{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:11px;color:var(--accent);font-family:monospace;word-break:break-all;line-height:1.5;cursor:pointer;}
+.signage-url:hover{border-color:var(--accent);}
 
-.broadcast-btn {
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
-  border: none; border-radius: 12px; padding: 12px 24px; color: #fff;
-  font-family: 'Noto Sans KR', sans-serif; font-size: 14px; font-weight: 600;
-  cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px;
-}
-.broadcast-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(91,138,255,0.35); }
+#toast{position:fixed;bottom:32px;right:32px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 20px;font-size:14px;color:var(--text);z-index:9999;display:none;animation:toastIn 0.3s ease;max-width:320px;}
+@keyframes toastIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+#toast.success{border-color:rgba(45,206,137,0.4);color:var(--green);}
+#toast.error{border-color:rgba(245,54,92,0.4);color:var(--red);}
 
-/* 토스트 */
-#toast {
-  position: fixed; bottom: 32px; right: 32px;
-  background: var(--surface2); border: 1px solid var(--border);
-  border-radius: 12px; padding: 14px 20px; font-size: 14px; color: var(--text);
-  z-index: 9999; display: none; animation: toastIn 0.3s ease; max-width: 320px;
-}
-@keyframes toastIn { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform: translateY(0); } }
-#toast.success { border-color: rgba(45,206,137,0.4); color: var(--green); }
-#toast.error { border-color: rgba(245,54,92,0.4); color: var(--red); }
+.spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-.spinner { width:14px; height:14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* 모달 */
-.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 200; display: none; align-items: center; justify-content: center; }
-.modal-bg.show { display: flex; }
-.modal { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 28px; width: 360px; }
-.modal h3 { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
-.modal input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; color: var(--text); font-family: 'Noto Sans KR', sans-serif; font-size: 14px; outline: none; margin-bottom: 16px; transition: border-color 0.2s; }
-.modal input:focus { border-color: var(--accent); }
-.modal-btns { display: flex; gap: 10px; }
-.modal-btn { flex: 1; padding: 12px; border-radius: 10px; border: none; font-family: 'Noto Sans KR', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-.modal-btn.cancel { background: var(--surface2); color: var(--text-muted); }
-.modal-btn.confirm { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; }
-
-/* URL 표시 */
-.signage-url {
-  background: var(--surface2); border: 1px solid var(--border);
-  border-radius: 8px; padding: 8px 12px; font-size: 11px;
-  color: var(--accent); font-family: monospace; word-break: break-all;
-  margin-top: 8px; line-height: 1.5;
-}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center;}
+.modal-bg.show{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:28px;width:400px;}
+.modal h3{font-size:18px;font-weight:700;margin-bottom:8px;}
+.modal p{font-size:13px;color:var(--text-muted);margin-bottom:16px;}
+.modal input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;outline:none;margin-bottom:8px;transition:border-color 0.2s;}
+.modal input:focus{border-color:var(--accent);}
+.modal-hint{font-size:11px;color:var(--text-dim);margin-bottom:16px;}
+.modal-btns{display:flex;gap:10px;}
+.modal-btn{flex:1;padding:12px;border-radius:10px;border:none;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+.modal-btn.cancel{background:var(--surface2);color:var(--text-muted);}
+.modal-btn.confirm{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;}
 </style>
 </head>
 <body>
@@ -261,36 +142,21 @@ body::before {
     <div id="location-list"></div>
     <button class="add-location-btn" onclick="openAddLocation()">＋ 장소 추가</button>
     <div class="sidebar-footer">
-      <div class="token-display" id="token-display">
-        <span>● GitHub Token</span><br>미설정
-      </div>
+      <div class="token-display" id="token-display"><span>● GitHub Token</span><br>미설정</div>
     </div>
   </aside>
 
   <main class="main">
     <div class="settings-bar">
-      <div class="field">
-        <label>GitHub 사용자명</label>
-        <input type="text" id="s-user" placeholder="zooz8624-afk" />
-      </div>
-      <div class="field">
-        <label>저장소 이름</label>
-        <input type="text" id="s-repo" placeholder="signage" />
-      </div>
-      <div class="field">
-        <label>GitHub Token</label>
-        <input type="password" id="s-token" placeholder="ghp_xxxxxxxxxxxx" />
-      </div>
+      <div class="field"><label>GitHub 사용자명</label><input type="text" id="s-user" placeholder="zooz8624-afk"/></div>
+      <div class="field"><label>저장소 이름</label><input type="text" id="s-repo" placeholder="signage"/></div>
+      <div class="field"><label>GitHub Token</label><input type="password" id="s-token" placeholder="ghp_xxxxxxxxxxxx"/></div>
       <button class="save-settings-btn" onclick="saveSettings()">저장</button>
     </div>
-
     <div class="main-header">
       <div class="main-title" id="main-title">장소를 선택하세요 <span>← 왼쪽에서 선택</span></div>
-      <button class="broadcast-btn" onclick="broadcastAll()" style="display:none" id="broadcast-btn">
-        📡 전체 동시 전송
-      </button>
+      <button class="broadcast-btn" onclick="broadcastAll()" style="display:none" id="broadcast-btn">📡 전체 동시 전송</button>
     </div>
-
     <div class="monitors-grid" id="monitors-grid"></div>
   </main>
 </div>
@@ -298,7 +164,10 @@ body::before {
 <div class="modal-bg" id="modal-bg">
   <div class="modal">
     <h3>새 장소 추가</h3>
-    <input type="text" id="modal-input" placeholder="예: 수유바른, 신림연세" />
+    <p>장소 이름과 짧은 ID를 입력하세요</p>
+    <input type="text" id="modal-name" placeholder="장소 이름 (예: 수유바른)"/>
+    <input type="text" id="modal-id" placeholder="짧은 ID (예: suyu) — 영문/숫자만"/>
+    <div class="modal-hint">⚠️ ID는 한 번 설정하면 바꾸기 어려워요!</div>
     <div class="modal-btns">
       <button class="modal-btn cancel" onclick="closeModal()">취소</button>
       <button class="modal-btn confirm" onclick="confirmAddLocation()">추가</button>
@@ -309,17 +178,19 @@ body::before {
 <div id="toast"></div>
 
 <script>
+const fileMap = {};
+
 let state = {
   settings: { user: 'zooz8624-afk', repo: 'signage', token: '' },
   locations: [
-    { id: 'suyubareun', name: '수유바른', monitors: [
-      { id: 'suyubareun_1', name: '1번 모니터', slides: [], duration: 5 }
+    { id: 'suyu', name: '수유바른', monitors: [
+      { id: 'suyu_1', name: '1번 모니터', slides: [], duration: 5 }
     ]},
-    { id: 'sinlimyonsei', name: '신림연세', monitors: [
-      { id: 'sinlimyonsei_1', name: '1번 모니터', slides: [], duration: 5 }
+    { id: 'sillim', name: '신림연세', monitors: [
+      { id: 'sillim_1', name: '1번 모니터', slides: [], duration: 5 }
     ]},
   ],
-  activeLocationId: 'suyubareun',
+  activeLocationId: 'suyu',
 };
 
 function init() {
@@ -331,7 +202,7 @@ function init() {
 
 function loadFromStorage() {
   try {
-    const saved = localStorage.getItem('signage_state');
+    const saved = localStorage.getItem('signage_v3');
     if (saved) {
       const p = JSON.parse(saved);
       if (p.settings) state.settings = p.settings;
@@ -342,19 +213,24 @@ function loadFromStorage() {
 }
 
 function saveToStorage() {
-  // 슬라이드 데이터URL은 저장 안 함 (용량 문제)
-  const toSave = {
-    settings: state.settings,
-    activeLocationId: state.activeLocationId,
-    locations: state.locations.map(loc => ({
-      ...loc,
-      monitors: loc.monitors.map(mon => ({
-        ...mon,
-        slides: mon.slides.map(s => ({ name: s.name, url: s.url.startsWith('data:') ? '' : s.url, uploaded: s.uploaded }))
+  try {
+    const toSave = {
+      settings: state.settings,
+      activeLocationId: state.activeLocationId,
+      locations: state.locations.map(loc => ({
+        ...loc,
+        monitors: loc.monitors.map(mon => ({
+          ...mon,
+          slides: mon.slides.map(s => ({
+            name: s.name, type: s.type,
+            url: s.url && !s.url.startsWith('data:') ? s.url : '',
+            uploaded: s.uploaded
+          }))
+        }))
       }))
-    }))
-  };
-  try { localStorage.setItem('signage_state', JSON.stringify(toSave)); } catch(e) {}
+    };
+    localStorage.setItem('signage_v3', JSON.stringify(toSave));
+  } catch(e) {}
 }
 
 function saveSettings() {
@@ -377,44 +253,43 @@ function loadSettingsUI() {
 }
 
 function updateTokenDisplay() {
-  const el = document.getElementById('token-display');
   const t = state.settings.token;
-  el.innerHTML = `<span>● GitHub Token</span><br>${t ? t.slice(0,12) + '••••••' : '미설정'}`;
+  document.getElementById('token-display').innerHTML = `<span>● GitHub Token</span><br>${t ? t.slice(0,12)+'••••••' : '미설정'}`;
 }
 
 function renderSidebar() {
-  const list = document.getElementById('location-list');
-  list.innerHTML = state.locations.map(loc => `
-    <button class="location-btn ${loc.id === state.activeLocationId ? 'active' : ''}" onclick="selectLocation('${loc.id}')">
-      <span class="dot"></span>
-      ${loc.name}
+  document.getElementById('location-list').innerHTML = state.locations.map(loc => `
+    <button class="location-btn ${loc.id===state.activeLocationId?'active':''}" onclick="selectLocation('${loc.id}')">
+      <span class="dot"></span>${loc.name}
       <span class="count">${loc.monitors.length}대</span>
-    </button>
-  `).join('');
+    </button>`).join('');
 }
 
 function selectLocation(id) {
   state.activeLocationId = id;
-  state.locations.forEach(l => {
-    l.monitors.forEach(m => { m._fileMap = m._fileMap || {}; });
-  });
   renderSidebar();
   renderMain();
 }
 
 function openAddLocation() {
   document.getElementById('modal-bg').classList.add('show');
-  document.getElementById('modal-input').value = '';
-  setTimeout(() => document.getElementById('modal-input').focus(), 100);
+  document.getElementById('modal-name').value = '';
+  document.getElementById('modal-id').value = '';
+  setTimeout(() => document.getElementById('modal-name').focus(), 100);
 }
-
 function closeModal() { document.getElementById('modal-bg').classList.remove('show'); }
 
+document.getElementById('modal-name').addEventListener('input', function() {
+  const idEl = document.getElementById('modal-id');
+  if (!idEl.value) idEl.value = this.value.replace(/[^a-zA-Z0-9]/g,'').toLowerCase().slice(0,8);
+});
+
 function confirmAddLocation() {
-  const name = document.getElementById('modal-input').value.trim();
-  if (!name) return;
-  const id = 'loc_' + Date.now();
-  state.locations.push({ id, name, monitors: [{ id: id + '_1', name: '1번 모니터', slides: [], duration: 5 }] });
+  const name = document.getElementById('modal-name').value.trim();
+  const id = document.getElementById('modal-id').value.trim().replace(/[^a-zA-Z0-9_]/g,'').toLowerCase();
+  if (!name || !id) { showToast('❌ 이름과 ID를 모두 입력하세요', 'error'); return; }
+  if (state.locations.find(l => l.id===id)) { showToast('❌ 이미 사용 중인 ID예요', 'error'); return; }
+  state.locations.push({ id, name, monitors: [{ id: id+'_1', name: '1번 모니터', slides: [], duration: 5 }] });
   state.activeLocationId = id;
   saveToStorage();
   closeModal();
@@ -423,252 +298,251 @@ function confirmAddLocation() {
 }
 
 function renderMain() {
-  const loc = state.locations.find(l => l.id === state.activeLocationId);
+  const loc = state.locations.find(l => l.id===state.activeLocationId);
   const title = document.getElementById('main-title');
   const grid = document.getElementById('monitors-grid');
   const bBtn = document.getElementById('broadcast-btn');
-
-  if (!loc) {
-    title.innerHTML = '장소를 선택하세요 <span>← 왼쪽에서 선택</span>';
-    grid.innerHTML = '';
-    bBtn.style.display = 'none';
-    return;
-  }
-
+  if (!loc) { title.innerHTML='장소를 선택하세요 <span>← 왼쪽에서 선택</span>'; grid.innerHTML=''; bBtn.style.display='none'; return; }
   title.innerHTML = `${loc.name} <span>모니터 ${loc.monitors.length}대</span>`;
   bBtn.style.display = 'flex';
-
   grid.innerHTML = loc.monitors.map(mon => renderMonitorCard(loc.id, mon)).join('') +
     `<button class="add-monitor-btn" onclick="addMonitor('${loc.id}')">🖥️ 모니터 추가</button>`;
-
-  loc.monitors.forEach(mon => setupDropZone(loc.id, mon.id));
+  loc.monitors.forEach(mon => setupDropZone(mon.id));
 }
 
 function renderMonitorCard(locId, mon) {
   const { user, repo } = state.settings;
   const signageUrl = `https://${user}.github.io/${repo}/index.html?id=${mon.id}`;
+  const isEmpty = mon.slides.length === 0;
 
-  const slidesHTML = mon.slides.length === 0
-    ? `<div class="no-slides">이미지 없음<br><small>아래에서 추가하세요</small></div>`
-    : mon.slides.map((s, i) => `
-        <div class="slide-item">
-          <img class="slide-thumb" src="${s.url || ''}" onerror="this.style.opacity='0.3'" />
-          <span class="slide-name">${s.name}</span>
-          <button class="slide-del" onclick="removeSlide('${mon.id}', ${i})">✕</button>
-        </div>`).join('');
+  const slidesHTML = isEmpty
+    ? `<div class="no-slides">미디어 없음<br><small>아래에서 이미지/동영상 추가</small></div>
+       <div class="empty-send-hint">⚠️ 전송하면 사이니지가 검정 화면으로 바뀝니다</div>`
+    : mon.slides.map((s, i) => {
+        const isVid = s.type === 'video';
+        const thumb = isVid
+          ? `<div class="slide-video-thumb">🎬</div>`
+          : `<img class="slide-thumb" src="${s.url||''}" onerror="this.style.opacity='0.2'"/>`;
+        const badge = isVid
+          ? `<span class="slide-badge-vid">🎬 동영상 — 끝까지 재생</span>`
+          : `<span class="slide-badge-img">🖼️ 이미지 — ${mon.duration}초</span>`;
+        return `
+          <div class="slide-item" draggable="true"
+            ondragstart="dragStart(event,'${mon.id}',${i})"
+            ondragover="dragOver(event)"
+            ondrop="dragDrop(event,'${mon.id}',${i})">
+            ${thumb}
+            <div class="slide-info">
+              <div class="slide-name">${i+1}. ${s.name}</div>
+              <div class="slide-type">${badge}</div>
+            </div>
+            <button class="slide-del" onclick="removeSlide('${mon.id}',${i})">✕</button>
+          </div>`;
+      }).join('');
+
+  const btnClass = isEmpty ? 'send-btn empty' : 'send-btn';
+  const btnLabel = isEmpty ? '🗑 빈 화면으로 전송' : '🚀 이 모니터에 전송';
 
   return `
     <div class="monitor-card" id="card-${mon.id}">
       <div class="monitor-header">
         <span class="monitor-icon">🖥️</span>
-        <input class="monitor-name-input" value="${mon.name}" onchange="renameMonitor('${mon.id}', this.value)" />
-        <button class="delete-monitor-btn" onclick="deleteMonitor('${locId}', '${mon.id}')">🗑</button>
+        <input class="monitor-name-input" value="${mon.name}" onchange="renameMonitor('${mon.id}',this.value)"/>
+        <span class="monitor-id-badge">${mon.id}</span>
+        <button class="delete-monitor-btn" onclick="deleteMonitor('${locId}','${mon.id}')">🗑</button>
       </div>
       <div class="slides-area">
-        <div class="slides-label">슬라이드 <span>${mon.slides.length}장</span></div>
+        <div class="slides-label">재생 목록 <span>${mon.slides.length}개</span></div>
         <div class="slides-list" id="slides-${mon.id}">${slidesHTML}</div>
         <div class="drop-zone" id="dz-${mon.id}">
-          <input type="file" accept="image/*" multiple onchange="handleFiles('${mon.id}', this.files)" />
-          <div class="dz-icon">📸</div>
-          <p>사진 추가 (여러 장 가능)</p>
+          <input type="file" accept="image/*,video/*" multiple onchange="handleFiles('${mon.id}',this.files)"/>
+          <div class="dz-icon">📸🎬</div>
+          <p>이미지 + 동영상 추가 (여러 개 가능)</p>
         </div>
       </div>
       <div class="slide-settings">
-        <label>슬라이드 간격</label>
-        <input type="number" min="1" max="300" value="${mon.duration}" onchange="setDuration('${mon.id}', this.value)" />
+        <label>이미지 표시 시간</label>
+        <input type="number" min="1" max="300" value="${mon.duration}" onchange="setDuration('${mon.id}',this.value)"/>
         <span class="unit">초</span>
+        <span class="hint">동영상은 끝까지 자동 재생</span>
       </div>
       <div class="monitor-footer">
-        <button class="send-btn" id="btn-${mon.id}" onclick="sendMonitor('${mon.id}')">🚀 이 모니터에 전송</button>
+        <button class="${btnClass}" id="btn-${mon.id}" onclick="sendMonitor('${mon.id}')">${btnLabel}</button>
       </div>
-      <div style="padding: 0 20px 16px;">
-        <div style="font-size:10px; color:var(--text-dim); margin-bottom:4px;">사이니지 URL</div>
-        <div class="signage-url">${signageUrl}</div>
+      <div class="signage-url-box">
+        <div class="signage-url-label">사이니지 URL (클릭하여 복사)</div>
+        <div class="signage-url" onclick="copyUrl('${signageUrl}',this)">${signageUrl}</div>
       </div>
     </div>`;
 }
 
-function setupDropZone(locId, monId) {
-  const dz = document.getElementById('dz-' + monId);
-  if (!dz) return;
-  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
-  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
-  dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag-over'); handleFiles(monId, e.dataTransfer.files); });
+function copyUrl(url, el) {
+  navigator.clipboard.writeText(url).then(() => {
+    const orig = el.textContent;
+    el.textContent = '✅ 복사됨!';
+    setTimeout(() => { el.textContent = orig; }, 1500);
+  });
 }
 
-// 파일 처리 - fileMap에 임시 저장
-const fileMap = {}; // monId -> [File, ...]
+let dragSrcMonId=null, dragSrcIdx=null;
+function dragStart(e,monId,idx){dragSrcMonId=monId;dragSrcIdx=idx;e.dataTransfer.effectAllowed='move';}
+function dragOver(e){e.preventDefault();e.dataTransfer.dropEffect='move';}
+function dragDrop(e,monId,idx){
+  e.preventDefault();
+  if(dragSrcMonId!==monId||dragSrcIdx===idx)return;
+  const mon=findMonitor(monId);if(!mon)return;
+  const[item]=mon.slides.splice(dragSrcIdx,1);mon.slides.splice(idx,0,item);
+  if(fileMap[monId]){const[f]=fileMap[monId].splice(dragSrcIdx,1);fileMap[monId].splice(idx,0,f);}
+  renderMain();
+}
+
+function setupDropZone(monId) {
+  const dz = document.getElementById('dz-'+monId);
+  if (!dz) return;
+  dz.addEventListener('dragover', e=>{e.preventDefault();dz.classList.add('drag-over');});
+  dz.addEventListener('dragleave', ()=>dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e=>{e.preventDefault();dz.classList.remove('drag-over');handleFiles(monId,e.dataTransfer.files);});
+}
 
 async function handleFiles(monId, files) {
   const mon = findMonitor(monId);
   if (!mon) return;
   if (!fileMap[monId]) fileMap[monId] = [];
-
   for (const file of Array.from(files)) {
-    if (!file.type.startsWith('image/')) continue;
-    const url = await fileToDataUrl(file);
-    mon.slides.push({ name: file.name, url, uploaded: false });
-    fileMap[monId].push(file);
+    const isVideo = file.type.startsWith('video/');
+    const isImage = file.type.startsWith('image/');
+    if (!isVideo && !isImage) continue;
+    if (isImage) {
+      const url = await fileToDataUrl(file);
+      mon.slides.push({ name: file.name, type: 'image', url, uploaded: false });
+    } else {
+      mon.slides.push({ name: file.name, type: 'video', url: '', uploaded: false });
+    }
+    fileMap[monId].push({ file, type: isVideo ? 'video' : 'image' });
   }
   renderMain();
 }
 
 function fileToDataUrl(file) {
-  return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = () => res(r.result);
-    r.onerror = rej;
-    r.readAsDataURL(file);
-  });
+  return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);});
 }
-
+function fileToBase64(file) {
+  return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(file);});
+}
 function findMonitor(monId) {
-  for (const loc of state.locations) {
-    const m = loc.monitors.find(m => m.id === monId);
-    if (m) return m;
-  }
-  return null;
+  for(const loc of state.locations){const m=loc.monitors.find(m=>m.id===monId);if(m)return m;}return null;
 }
 
-function removeSlide(monId, idx) {
-  const mon = findMonitor(monId);
-  if (!mon) return;
-  mon.slides.splice(idx, 1);
-  if (fileMap[monId]) fileMap[monId].splice(idx, 1);
+function removeSlide(monId,idx){
+  const mon=findMonitor(monId);if(!mon)return;
+  mon.slides.splice(idx,1);
+  if(fileMap[monId])fileMap[monId].splice(idx,1);
   renderMain();
 }
-
-function setDuration(monId, val) {
-  const mon = findMonitor(monId);
-  if (!mon) return;
-  mon.duration = Math.max(1, parseInt(val) || 5);
-  saveToStorage();
-}
-
-function renameMonitor(monId, name) {
-  const mon = findMonitor(monId);
-  if (!mon) return;
-  mon.name = name;
-  saveToStorage();
-  renderSidebar();
-}
+function setDuration(monId,val){const mon=findMonitor(monId);if(!mon)return;mon.duration=Math.max(1,parseInt(val)||5);saveToStorage();}
+function renameMonitor(monId,name){const mon=findMonitor(monId);if(!mon)return;mon.name=name;saveToStorage();renderSidebar();}
 
 function addMonitor(locId) {
-  const loc = state.locations.find(l => l.id === locId);
-  if (!loc) return;
-  const n = loc.monitors.length + 1;
-  loc.monitors.push({ id: locId + '_' + Date.now(), name: n + '번 모니터', slides: [], duration: 5 });
-  saveToStorage();
-  renderMain();
-  renderSidebar();
+  const loc=state.locations.find(l=>l.id===locId);if(!loc)return;
+  const n=loc.monitors.length+1;
+  const newId=locId+'_'+n;
+  const safeId=loc.monitors.find(m=>m.id===newId)?locId+'_'+Date.now():newId;
+  loc.monitors.push({id:safeId,name:n+'번 모니터',slides:[],duration:5});
+  saveToStorage();renderMain();renderSidebar();
 }
 
-function deleteMonitor(locId, monId) {
-  const loc = state.locations.find(l => l.id === locId);
-  if (!loc) return;
-  if (loc.monitors.length <= 1) { showToast('❌ 최소 1대는 있어야 합니다', 'error'); return; }
-  loc.monitors = loc.monitors.filter(m => m.id !== monId);
+function deleteMonitor(locId,monId){
+  const loc=state.locations.find(l=>l.id===locId);if(!loc)return;
+  if(loc.monitors.length<=1){showToast('❌ 최소 1대는 있어야 합니다','error');return;}
+  loc.monitors=loc.monitors.filter(m=>m.id!==monId);
   delete fileMap[monId];
-  saveToStorage();
-  renderMain();
-  renderSidebar();
+  saveToStorage();renderMain();renderSidebar();
 }
 
 async function sendMonitor(monId) {
-  const { user, repo, token } = state.settings;
-  if (!token) { showToast('❌ GitHub Token을 먼저 설정하고 저장하세요!', 'error'); return; }
+  const {user,repo,token}=state.settings;
+  if(!token){showToast('❌ GitHub Token을 먼저 설정하고 저장하세요!','error');return;}
+  const mon=findMonitor(monId);if(!mon)return;
 
-  const mon = findMonitor(monId);
-  if (!mon) return;
-  if (mon.slides.length === 0) { showToast('❌ 슬라이드 이미지를 추가해주세요!', 'error'); return; }
-
-  const btn = document.getElementById('btn-' + monId);
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> 업로드 중...';
+  // ✅ 빈 슬라이드도 전송 가능 (검정 화면으로 만들기)
+  const btn=document.getElementById('btn-'+monId);
+  btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span> 전송 중...';
 
   try {
-    const urls = [];
-    const files = fileMap[monId] || [];
-    let fileIdx = 0;
+    const items=[];
+    const files=fileMap[monId]||[];
 
-    for (let i = 0; i < mon.slides.length; i++) {
-      const slide = mon.slides[i];
-      if (slide.url && slide.url.startsWith('data:')) {
-        btn.innerHTML = `<span class="spinner"></span> ${i+1}/${mon.slides.length} 업로드 중...`;
-        const base64 = slide.url.split(',')[1];
-        const fileName = `images/${monId}_${Date.now()}_${i}_${slide.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
-        const uploadedUrl = await uploadFile(user, repo, token, fileName, base64);
-        urls.push(uploadedUrl);
-        mon.slides[i].url = uploadedUrl;
-        mon.slides[i].uploaded = true;
-      } else if (slide.url) {
-        urls.push(slide.url);
+    for(let i=0;i<mon.slides.length;i++){
+      const slide=mon.slides[i];
+      btn.innerHTML=`<span class="spinner"></span> ${i+1}/${mon.slides.length} 업로드 중...`;
+      if(slide.uploaded&&slide.url&&!slide.url.startsWith('data:')){
+        items.push({type:slide.type,url:slide.url});continue;
       }
+      const fe=files[i];
+      if(!fe){items.push({type:slide.type,url:slide.url||''});continue;}
+      const ext=slide.name.split('.').pop();
+      const fileName=`media/${monId}_${i}_${Date.now()}.${ext}`;
+      const base64=await fileToBase64(fe.file);
+      const uploadedUrl=await uploadFile(user,repo,token,fileName,base64);
+      mon.slides[i].url=uploadedUrl;mon.slides[i].uploaded=true;
+      items.push({type:slide.type,url:uploadedUrl});
     }
 
-    const data = JSON.stringify({ slides: urls, duration: mon.duration });
-    await updateFile(user, repo, token, `data/${monId}.json`, data);
+    const data=JSON.stringify({items,duration:mon.duration},null,2);
+    await updateFile(user,repo,token,`data/${monId}.json`,data);
+    fileMap[monId]=[];saveToStorage();
 
-    fileMap[monId] = [];
-    saveToStorage();
-
-    btn.className = 'send-btn success';
-    btn.innerHTML = '✅ 전송 완료!';
-    showToast(`✅ ${mon.name} 전송 완료! 30초 내로 화면이 바뀝니다.`, 'success');
-
-    setTimeout(() => {
-      if (btn) { btn.disabled = false; btn.className = 'send-btn'; btn.innerHTML = '🚀 이 모니터에 전송'; }
-    }, 3000);
+    btn.className='send-btn success';
+    btn.innerHTML = items.length === 0 ? '✅ 빈 화면 전송 완료!' : '✅ 전송 완료!';
+    const msg = items.length === 0
+      ? `🗑 ${mon.name} — 30초 내 검정 화면으로 바뀝니다.`
+      : `✅ ${mon.name} 전송 완료! 30초 내 화면이 바뀝니다.`;
+    showToast(msg, 'success');
+    setTimeout(()=>{
+      if(btn){
+        btn.disabled=false;
+        btn.className=mon.slides.length===0?'send-btn empty':'send-btn';
+        btn.innerHTML=mon.slides.length===0?'🗑 빈 화면으로 전송':'🚀 이 모니터에 전송';
+      }
+    },3000);
 
   } catch(err) {
-    btn.className = 'send-btn error-state';
-    btn.innerHTML = '❌ 오류 발생';
-    showToast('❌ ' + err.message, 'error');
-    setTimeout(() => {
-      if (btn) { btn.disabled = false; btn.className = 'send-btn'; btn.innerHTML = '🚀 이 모니터에 전송'; }
-    }, 3000);
+    btn.className='send-btn error-state';btn.innerHTML='❌ 오류 발생';
+    showToast('❌ '+err.message,'error');
+    setTimeout(()=>{if(btn){btn.disabled=false;btn.className='send-btn';btn.innerHTML='🚀 이 모니터에 전송';}},3000);
   }
 }
 
-async function broadcastAll() {
-  const loc = state.locations.find(l => l.id === state.activeLocationId);
-  if (!loc) return;
-  for (const mon of loc.monitors) await sendMonitor(mon.id);
+async function broadcastAll(){
+  const loc=state.locations.find(l=>l.id===state.activeLocationId);if(!loc)return;
+  for(const mon of loc.monitors)await sendMonitor(mon.id);
 }
 
-async function uploadFile(user, repo, token, path, base64) {
-  const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`, {
-    method: 'PUT',
-    headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message: '이미지 업로드', content: base64 })
-  });
-  if (!res.ok) { const e = await res.json(); throw new Error(e.message || '업로드 실패'); }
-  return (await res.json()).content.download_url;
+async function uploadFile(user,repo,token,path,base64){
+  const res=await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`,{method:'PUT',headers:{'Authorization':`token ${token}`,'Content-Type':'application/json'},body:JSON.stringify({message:'미디어 업로드',content:base64})});
+  if(!res.ok){const e=await res.json();throw new Error(e.message||'업로드 실패');}
+  return(await res.json()).content.download_url;
 }
 
-async function updateFile(user, repo, token, path, content) {
-  const url = `https://api.github.com/repos/${user}/${repo}/contents/${path}`;
-  let sha = null;
-  try { const ex = await fetch(url, { headers: { 'Authorization': `token ${token}` } }); if (ex.ok) sha = (await ex.json()).sha; } catch(e) {}
-  const body = { message: '슬라이드 업데이트', content: btoa(unescape(encodeURIComponent(content))) };
-  if (sha) body.sha = sha;
-  const res = await fetch(url, { method: 'PUT', headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-  if (!res.ok) { const e = await res.json(); throw new Error(e.message || '업데이트 실패'); }
+async function updateFile(user,repo,token,path,content){
+  const url=`https://api.github.com/repos/${user}/${repo}/contents/${path}`;
+  let sha=null;
+  try{const ex=await fetch(url,{headers:{'Authorization':`token ${token}`}});if(ex.ok)sha=(await ex.json()).sha;}catch(e){}
+  const body={message:'슬라이드 업데이트',content:btoa(unescape(encodeURIComponent(content)))};
+  if(sha)body.sha=sha;
+  const res=await fetch(url,{method:'PUT',headers:{'Authorization':`token ${token}`,'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!res.ok){const e=await res.json();throw new Error(e.message||'업데이트 실패');}
 }
 
-function showToast(msg, type = '') {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = type;
-  el.style.display = 'block';
-  clearTimeout(el._timer);
-  el._timer = setTimeout(() => { el.style.display = 'none'; }, 4000);
+function showToast(msg,type=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className=type;el.style.display='block';
+  clearTimeout(el._t);el._t=setTimeout(()=>{el.style.display='none';},4000);
 }
 
-document.getElementById('modal-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') confirmAddLocation();
-  if (e.key === 'Escape') closeModal();
-});
+document.getElementById('modal-name').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('modal-id').focus();});
+document.getElementById('modal-id').addEventListener('keydown',e=>{if(e.key==='Enter')confirmAddLocation();if(e.key==='Escape')closeModal();});
 
 init();
 </script>
