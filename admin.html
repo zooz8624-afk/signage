@@ -4,661 +4,673 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>사이니지 관리자</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0a0f;
-    --surface: #13131a;
-    --surface2: #1c1c28;
-    --border: #2a2a3a;
-    --accent: #4f7cff;
-    --accent2: #7c4fff;
-    --text: #e8e8f0;
-    --text-muted: #6b6b88;
-    --success: #2dce89;
-    --warning: #fb6340;
-  }
+:root {
+  --bg: #0c0c12;
+  --surface: #14141f;
+  --surface2: #1e1e2e;
+  --surface3: #252538;
+  --border: #2e2e45;
+  --accent: #5b8aff;
+  --accent2: #8b5bff;
+  --green: #2dce89;
+  --red: #f5365c;
+  --text: #e8e8f5;
+  --text-muted: #6b6b95;
+  --text-dim: #3a3a58;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans KR', sans-serif;
+  min-height: 100vh;
+}
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(ellipse at 20% 10%, rgba(91,138,255,0.07) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 90%, rgba(139,91,255,0.07) 0%, transparent 50%);
+  pointer-events:none;
+  z-index:0;
+}
+.app { display:flex; min-height:100vh; position:relative; z-index:1; }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+/* 사이드바 */
+.sidebar {
+  width: 260px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top:0; left:0; bottom:0;
+  z-index: 100;
+}
+.sidebar-header { padding: 24px 20px; border-bottom: 1px solid var(--border); }
+.logo {
+  font-size: 18px; font-weight: 900; letter-spacing: -0.03em;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  margin-bottom: 4px;
+}
+.logo-sub { font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; }
+.sidebar-section { padding: 16px 12px 8px; font-size: 10px; color: var(--text-dim); letter-spacing: 0.12em; text-transform: uppercase; }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Noto Sans KR', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 40px 20px;
-  }
+.location-btn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 10px; cursor: pointer;
+  transition: all 0.2s; margin: 2px 8px; border: none;
+  background: transparent; color: var(--text-muted);
+  font-family: 'Noto Sans KR', sans-serif; font-size: 14px;
+  width: calc(100% - 16px); text-align: left;
+}
+.location-btn:hover { background: var(--surface2); color: var(--text); }
+.location-btn.active { background: rgba(91,138,255,0.12); color: var(--accent); }
+.location-btn .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-dim); flex-shrink: 0; }
+.location-btn.active .dot { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+.location-btn .count { margin-left: auto; font-size: 11px; background: var(--surface3); padding: 2px 7px; border-radius: 10px; }
 
-  /* 배경 그라디언트 */
-  body::before {
-    content: '';
-    position: fixed;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(ellipse at 30% 20%, rgba(79,124,255,0.06) 0%, transparent 50%),
-                radial-gradient(ellipse at 70% 80%, rgba(124,79,255,0.06) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: 0;
-  }
+.add-location-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px; margin: 4px 8px; border-radius: 10px;
+  cursor: pointer; color: var(--text-muted); font-size: 13px;
+  border: 1px dashed var(--border); background: transparent;
+  font-family: 'Noto Sans KR', sans-serif; width: calc(100% - 16px);
+  transition: all 0.2s;
+}
+.add-location-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-  .container {
-    width: 100%;
-    max-width: 680px;
-    position: relative;
-    z-index: 1;
-  }
+.sidebar-footer { margin-top: auto; padding: 16px; border-top: 1px solid var(--border); }
+.token-display {
+  font-size: 11px; color: var(--text-muted);
+  background: var(--surface2); padding: 8px 12px;
+  border-radius: 8px; word-break: break-all; line-height: 1.5;
+}
+.token-display span { color: var(--green); font-size: 10px; }
 
-  /* 헤더 */
-  .header {
-    text-align: center;
-    margin-bottom: 48px;
-  }
+/* 메인 */
+.main { margin-left: 260px; flex: 1; padding: 32px; }
+.main-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+.main-title { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
+.main-title span { color: var(--text-muted); font-weight: 300; }
 
-  .header .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(79,124,255,0.12);
-    border: 1px solid rgba(79,124,255,0.25);
-    border-radius: 100px;
-    padding: 6px 16px;
-    font-size: 12px;
-    color: var(--accent);
-    letter-spacing: 0.1em;
-    margin-bottom: 20px;
-  }
+/* 설정 바 */
+.settings-bar {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 16px 20px; margin-bottom: 24px;
+  display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;
+}
+.settings-bar .field { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 160px; }
+.settings-bar label { font-size: 11px; color: var(--text-muted); letter-spacing: 0.05em; }
+.settings-bar input {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 14px; color: var(--text);
+  font-family: 'Noto Sans KR', sans-serif; font-size: 13px;
+  outline: none; transition: border-color 0.2s;
+}
+.settings-bar input:focus { border-color: var(--accent); }
+.save-settings-btn {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 18px; color: var(--text);
+  font-family: 'Noto Sans KR', sans-serif; font-size: 13px;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.save-settings-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-  .header .dot {
-    width: 6px;
-    height: 6px;
-    background: var(--accent);
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-  }
+/* 모니터 그리드 */
+.monitors-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
 
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-  }
+/* 모니터 카드 */
+.monitor-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; transition: border-color 0.2s; }
+.monitor-card:hover { border-color: rgba(91,138,255,0.4); }
+.monitor-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+.monitor-icon { font-size: 18px; }
+.monitor-name-input {
+  background: transparent; border: none; color: var(--text);
+  font-family: 'Noto Sans KR', sans-serif; font-size: 15px;
+  font-weight: 600; outline: none; flex: 1;
+}
+.delete-monitor-btn {
+  background: none; border: none; color: var(--text-dim);
+  cursor: pointer; font-size: 16px; padding: 4px;
+  border-radius: 6px; transition: all 0.2s;
+}
+.delete-monitor-btn:hover { color: var(--red); background: rgba(245,54,92,0.1); }
 
-  .header h1 {
-    font-size: 32px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    background: linear-gradient(135deg, #fff 0%, #a0a0c0 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 10px;
-  }
+/* 슬라이드 */
+.slides-area { padding: 16px 20px; }
+.slides-label {
+  font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em;
+  text-transform: uppercase; margin-bottom: 12px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.slides-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.slide-item {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface2); border-radius: 10px; padding: 8px 12px;
+  font-size: 12px;
+}
+.slide-thumb { width: 40px; height: 30px; border-radius: 6px; object-fit: cover; background: var(--surface3); flex-shrink: 0; }
+.slide-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+.slide-del { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 14px; padding: 2px 6px; border-radius: 4px; transition: all 0.2s; }
+.slide-del:hover { color: var(--red); background: rgba(245,54,92,0.1); }
+.no-slides { text-align: center; color: var(--text-dim); font-size: 13px; padding: 16px 0; }
 
-  .header p {
-    color: var(--text-muted);
-    font-size: 14px;
-    font-weight: 300;
-  }
+.drop-zone {
+  border: 1.5px dashed var(--border); border-radius: 10px;
+  padding: 16px; text-align: center; cursor: pointer;
+  transition: all 0.2s; position: relative;
+}
+.drop-zone:hover, .drop-zone.drag-over { border-color: var(--accent); background: rgba(91,138,255,0.04); }
+.drop-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.drop-zone p { font-size: 12px; color: var(--text-muted); }
+.dz-icon { font-size: 24px; margin-bottom: 6px; }
 
-  /* 카드 */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 32px;
-    margin-bottom: 20px;
-  }
+/* 슬라이드 설정 */
+.slide-settings {
+  padding: 12px 20px; border-top: 1px solid var(--border);
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+}
+.slide-settings label { font-size: 11px; color: var(--text-muted); }
+.slide-settings input[type="number"] {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 6px 10px; color: var(--text);
+  font-family: 'Noto Sans KR', sans-serif; font-size: 13px;
+  outline: none; width: 70px; transition: border-color 0.2s;
+}
+.slide-settings input[type="number"]:focus { border-color: var(--accent); }
+.unit { font-size: 12px; color: var(--text-muted); }
 
-  .card-title {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-muted);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+/* 버튼 */
+.monitor-footer { padding: 12px 20px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+.send-btn {
+  flex: 1; background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none; border-radius: 10px; padding: 12px; color: #fff;
+  font-family: 'Noto Sans KR', sans-serif; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.send-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(91,138,255,0.35); }
+.send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+.send-btn.success { background: linear-gradient(135deg, var(--green), #1a9e65); }
+.send-btn.error-state { background: linear-gradient(135deg, var(--red), #c02040); }
 
-  .card-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
+.add-monitor-btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  background: var(--surface); border: 1.5px dashed var(--border);
+  border-radius: 18px; padding: 40px; cursor: pointer; color: var(--text-muted);
+  font-family: 'Noto Sans KR', sans-serif; font-size: 14px;
+  transition: all 0.2s; width: 100%;
+}
+.add-monitor-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(91,138,255,0.04); }
 
-  /* 설정 입력 */
-  .input-group {
-    margin-bottom: 16px;
-  }
+.broadcast-btn {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none; border-radius: 12px; padding: 12px 24px; color: #fff;
+  font-family: 'Noto Sans KR', sans-serif; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px;
+}
+.broadcast-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(91,138,255,0.35); }
 
-  .input-group label {
-    display: block;
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-bottom: 8px;
-    letter-spacing: 0.05em;
-  }
+/* 토스트 */
+#toast {
+  position: fixed; bottom: 32px; right: 32px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px 20px; font-size: 14px; color: var(--text);
+  z-index: 9999; display: none; animation: toastIn 0.3s ease; max-width: 320px;
+}
+@keyframes toastIn { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform: translateY(0); } }
+#toast.success { border-color: rgba(45,206,137,0.4); color: var(--green); }
+#toast.error { border-color: rgba(245,54,92,0.4); color: var(--red); }
 
-  .input-group input {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 16px;
-    color: var(--text);
-    font-size: 14px;
-    font-family: 'Noto Sans KR', sans-serif;
-    outline: none;
-    transition: border-color 0.2s;
-  }
+.spinner { width:14px; height:14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-  .input-group input:focus {
-    border-color: var(--accent);
-  }
+/* 모달 */
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 200; display: none; align-items: center; justify-content: center; }
+.modal-bg.show { display: flex; }
+.modal { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 28px; width: 360px; }
+.modal h3 { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+.modal input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; color: var(--text); font-family: 'Noto Sans KR', sans-serif; font-size: 14px; outline: none; margin-bottom: 16px; transition: border-color 0.2s; }
+.modal input:focus { border-color: var(--accent); }
+.modal-btns { display: flex; gap: 10px; }
+.modal-btn { flex: 1; padding: 12px; border-radius: 10px; border: none; font-family: 'Noto Sans KR', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.modal-btn.cancel { background: var(--surface2); color: var(--text-muted); }
+.modal-btn.confirm { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; }
 
-  /* 업로드 존 */
-  .upload-zone {
-    border: 2px dashed var(--border);
-    border-radius: 16px;
-    padding: 48px 32px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .upload-zone:hover, .upload-zone.drag-over {
-    border-color: var(--accent);
-    background: rgba(79,124,255,0.04);
-  }
-
-  .upload-zone input[type="file"] {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    cursor: pointer;
-    width: 100%;
-    height: 100%;
-  }
-
-  .upload-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
-    display: block;
-  }
-
-  .upload-zone h3 {
-    font-size: 16px;
-    font-weight: 500;
-    margin-bottom: 8px;
-  }
-
-  .upload-zone p {
-    font-size: 13px;
-    color: var(--text-muted);
-  }
-
-  /* 미리보기 */
-  #preview-wrap {
-    display: none;
-    margin-top: 20px;
-    border-radius: 12px;
-    overflow: hidden;
-    border: 1px solid var(--border);
-    position: relative;
-  }
-
-  #preview-img {
-    width: 100%;
-    max-height: 300px;
-    object-fit: contain;
-    background: #000;
-    display: block;
-  }
-
-  .preview-label {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    background: rgba(0,0,0,0.7);
-    color: #fff;
-    font-size: 11px;
-    padding: 4px 10px;
-    border-radius: 6px;
-    letter-spacing: 0.05em;
-  }
-
-  /* URL 입력 */
-  .divider {
-    text-align: center;
-    color: var(--text-muted);
-    font-size: 12px;
-    margin: 20px 0;
-    position: relative;
-  }
-
-  .divider::before, .divider::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    width: 42%;
-    height: 1px;
-    background: var(--border);
-  }
-  .divider::before { left: 0; }
-  .divider::after { right: 0; }
-
-  .url-input {
-    display: flex;
-    gap: 10px;
-  }
-
-  .url-input input {
-    flex: 1;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 16px;
-    color: var(--text);
-    font-size: 14px;
-    font-family: monospace;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-
-  .url-input input:focus {
-    border-color: var(--accent);
-  }
-
-  /* 버튼 */
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 14px 28px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 500;
-    font-family: 'Noto Sans KR', sans-serif;
-    cursor: pointer;
-    border: none;
-    transition: all 0.2s;
-    letter-spacing: 0.02em;
-  }
-
-  .btn-primary {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: #fff;
-    width: 100%;
-    margin-top: 24px;
-    font-size: 16px;
-    padding: 16px;
-  }
-
-  .btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 24px rgba(79,124,255,0.3);
-  }
-
-  .btn-primary:active {
-    transform: translateY(0);
-  }
-
-  .btn-primary:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
-
-  .btn-sm {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 12px 20px;
-    border-radius: 10px;
-    white-space: nowrap;
-  }
-
-  .btn-sm:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-
-  /* 알림 */
-  #alert {
-    display: none;
-    border-radius: 12px;
-    padding: 16px 20px;
-    margin-top: 16px;
-    font-size: 14px;
-    font-weight: 500;
-    text-align: center;
-    animation: slideIn 0.3s ease;
-  }
-
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .alert-success {
-    background: rgba(45,206,137,0.1);
-    border: 1px solid rgba(45,206,137,0.3);
-    color: var(--success);
-  }
-
-  .alert-error {
-    background: rgba(251,99,64,0.1);
-    border: 1px solid rgba(251,99,64,0.3);
-    color: var(--warning);
-  }
-
-  /* 안내 박스 */
-  .info-box {
-    background: rgba(79,124,255,0.06);
-    border: 1px solid rgba(79,124,255,0.2);
-    border-radius: 12px;
-    padding: 16px 20px;
-    font-size: 13px;
-    color: #8090cc;
-    line-height: 1.7;
-  }
-
-  .info-box strong {
-    color: var(--accent);
-  }
-
-  /* 현재 이미지 */
-  #current-info {
-    display: none;
-    margin-top: 16px;
-    padding: 12px 16px;
-    background: var(--surface2);
-    border-radius: 10px;
-    font-size: 12px;
-    color: var(--text-muted);
-    word-break: break-all;
-  }
-
-  #current-info strong {
-    color: var(--text);
-  }
-
-  /* 스피너 */
-  .spinner {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(255,255,255,0.3);
-    border-top-color: #fff;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
+/* URL 표시 */
+.signage-url {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 12px; font-size: 11px;
+  color: var(--accent); font-family: monospace; word-break: break-all;
+  margin-top: 8px; line-height: 1.5;
+}
 </style>
 </head>
 <body>
-
-<div class="container">
-
-  <div class="header">
-    <div class="badge">
-      <span class="dot"></span>
-      SIGNAGE REMOTE CONTROL
+<div class="app">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">SIGNAGE</div>
+      <div class="logo-sub">원격 관리 시스템</div>
     </div>
-    <h1>사이니지 관리자</h1>
-    <p>인천에서 서울 사이니지 화면을 원격으로 변경합니다</p>
-  </div>
-
-  <!-- GitHub 설정 -->
-  <div class="card">
-    <div class="card-title">GitHub 설정</div>
-
-    <div class="input-group">
-      <label>GitHub 사용자명</label>
-      <input type="text" id="github-user" value="zooz8624-afk" placeholder="예: zooz8624-afk" />
+    <div class="sidebar-section">장소</div>
+    <div id="location-list"></div>
+    <button class="add-location-btn" onclick="openAddLocation()">＋ 장소 추가</button>
+    <div class="sidebar-footer">
+      <div class="token-display" id="token-display">
+        <span>● GitHub Token</span><br>미설정
+      </div>
     </div>
-    <div class="input-group">
-      <label>저장소 이름</label>
-      <input type="text" id="github-repo" value="signage" placeholder="예: signage" />
-    </div>
-    <div class="input-group">
-      <label>GitHub Personal Access Token (PAT)</label>
-      <input type="password" id="github-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" />
-    </div>
+  </aside>
 
-    <div class="info-box">
-      💡 <strong>Token 발급 방법:</strong><br>
-      GitHub → 우측 상단 프로필 → Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new token → <strong>repo 체크</strong> → Generate
-    </div>
-  </div>
-
-  <!-- 이미지 변경 -->
-  <div class="card">
-    <div class="card-title">이미지 변경</div>
-
-    <!-- 파일 업로드 -->
-    <div class="upload-zone" id="upload-zone">
-      <input type="file" id="file-input" accept="image/*" />
-      <span class="upload-icon">📸</span>
-      <h3>사진을 여기에 끌어다 놓거나 클릭하세요</h3>
-      <p>JPG, PNG, GIF, WEBP 지원</p>
+  <main class="main">
+    <div class="settings-bar">
+      <div class="field">
+        <label>GitHub 사용자명</label>
+        <input type="text" id="s-user" placeholder="zooz8624-afk" />
+      </div>
+      <div class="field">
+        <label>저장소 이름</label>
+        <input type="text" id="s-repo" placeholder="signage" />
+      </div>
+      <div class="field">
+        <label>GitHub Token</label>
+        <input type="password" id="s-token" placeholder="ghp_xxxxxxxxxxxx" />
+      </div>
+      <button class="save-settings-btn" onclick="saveSettings()">저장</button>
     </div>
 
-    <div id="preview-wrap">
-      <span class="preview-label">미리보기</span>
-      <img id="preview-img" src="" alt="미리보기" />
+    <div class="main-header">
+      <div class="main-title" id="main-title">장소를 선택하세요 <span>← 왼쪽에서 선택</span></div>
+      <button class="broadcast-btn" onclick="broadcastAll()" style="display:none" id="broadcast-btn">
+        📡 전체 동시 전송
+      </button>
     </div>
 
-    <div class="divider">또는 이미지 URL 직접 입력</div>
-
-    <div class="url-input">
-      <input type="text" id="image-url" placeholder="https://example.com/image.jpg" />
-      <button class="btn btn-sm" onclick="previewUrl()">미리보기</button>
-    </div>
-
-    <div id="current-info"></div>
-
-    <button class="btn btn-primary" id="send-btn" onclick="sendToSignage()">
-      🚀 사이니지 화면 변경하기
-    </button>
-
-    <div id="alert"></div>
-  </div>
-
-  <!-- 안내 -->
-  <div class="info-box">
-    📺 <strong>사이니지(QM32C) 설정:</strong><br>
-    메뉴 → URL Launcher → 아래 주소 입력<br>
-    <strong>https://zooz8624-afk.github.io/signage/index.html</strong><br><br>
-    ⏱ 이미지 변경 후 최대 <strong>30초</strong> 내에 사이니지 화면이 자동으로 바뀝니다.
-  </div>
-
+    <div class="monitors-grid" id="monitors-grid"></div>
+  </main>
 </div>
 
+<div class="modal-bg" id="modal-bg">
+  <div class="modal">
+    <h3>새 장소 추가</h3>
+    <input type="text" id="modal-input" placeholder="예: 수유바른, 신림연세" />
+    <div class="modal-btns">
+      <button class="modal-btn cancel" onclick="closeModal()">취소</button>
+      <button class="modal-btn confirm" onclick="confirmAddLocation()">추가</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
 <script>
-  let selectedFile = null;
-  let uploadedImageUrl = '';
+let state = {
+  settings: { user: 'zooz8624-afk', repo: 'signage', token: '' },
+  locations: [
+    { id: 'suyubareun', name: '수유바른', monitors: [
+      { id: 'suyubareun_1', name: '1번 모니터', slides: [], duration: 5 }
+    ]},
+    { id: 'sinlimyonsei', name: '신림연세', monitors: [
+      { id: 'sinlimyonsei_1', name: '1번 모니터', slides: [], duration: 5 }
+    ]},
+  ],
+  activeLocationId: 'suyubareun',
+};
 
-  // 파일 선택 미리보기
-  document.getElementById('file-input').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    selectedFile = file;
+function init() {
+  loadFromStorage();
+  renderSidebar();
+  renderMain();
+  loadSettingsUI();
+}
 
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      document.getElementById('preview-img').src = ev.target.result;
-      document.getElementById('preview-wrap').style.display = 'block';
-      document.getElementById('image-url').value = '';
-    };
-    reader.readAsDataURL(file);
+function loadFromStorage() {
+  try {
+    const saved = localStorage.getItem('signage_state');
+    if (saved) {
+      const p = JSON.parse(saved);
+      if (p.settings) state.settings = p.settings;
+      if (p.locations) state.locations = p.locations;
+      if (p.activeLocationId) state.activeLocationId = p.activeLocationId;
+    }
+  } catch(e) {}
+}
+
+function saveToStorage() {
+  // 슬라이드 데이터URL은 저장 안 함 (용량 문제)
+  const toSave = {
+    settings: state.settings,
+    activeLocationId: state.activeLocationId,
+    locations: state.locations.map(loc => ({
+      ...loc,
+      monitors: loc.monitors.map(mon => ({
+        ...mon,
+        slides: mon.slides.map(s => ({ name: s.name, url: s.url.startsWith('data:') ? '' : s.url, uploaded: s.uploaded }))
+      }))
+    }))
+  };
+  try { localStorage.setItem('signage_state', JSON.stringify(toSave)); } catch(e) {}
+}
+
+function saveSettings() {
+  const u = document.getElementById('s-user').value.trim();
+  const r = document.getElementById('s-repo').value.trim();
+  const t = document.getElementById('s-token').value.trim();
+  if (u) state.settings.user = u;
+  if (r) state.settings.repo = r;
+  if (t) state.settings.token = t;
+  saveToStorage();
+  updateTokenDisplay();
+  showToast('✅ 설정 저장 완료!', 'success');
+}
+
+function loadSettingsUI() {
+  document.getElementById('s-user').value = state.settings.user;
+  document.getElementById('s-repo').value = state.settings.repo;
+  document.getElementById('s-token').value = state.settings.token;
+  updateTokenDisplay();
+}
+
+function updateTokenDisplay() {
+  const el = document.getElementById('token-display');
+  const t = state.settings.token;
+  el.innerHTML = `<span>● GitHub Token</span><br>${t ? t.slice(0,12) + '••••••' : '미설정'}`;
+}
+
+function renderSidebar() {
+  const list = document.getElementById('location-list');
+  list.innerHTML = state.locations.map(loc => `
+    <button class="location-btn ${loc.id === state.activeLocationId ? 'active' : ''}" onclick="selectLocation('${loc.id}')">
+      <span class="dot"></span>
+      ${loc.name}
+      <span class="count">${loc.monitors.length}대</span>
+    </button>
+  `).join('');
+}
+
+function selectLocation(id) {
+  state.activeLocationId = id;
+  state.locations.forEach(l => {
+    l.monitors.forEach(m => { m._fileMap = m._fileMap || {}; });
   });
+  renderSidebar();
+  renderMain();
+}
 
-  // 드래그앤드롭
-  const zone = document.getElementById('upload-zone');
-  zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('drag-over'); });
-  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-  zone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    zone.classList.remove('drag-over');
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-      document.getElementById('file-input').files = e.dataTransfer.files;
-      document.getElementById('file-input').dispatchEvent(new Event('change'));
-    }
+function openAddLocation() {
+  document.getElementById('modal-bg').classList.add('show');
+  document.getElementById('modal-input').value = '';
+  setTimeout(() => document.getElementById('modal-input').focus(), 100);
+}
+
+function closeModal() { document.getElementById('modal-bg').classList.remove('show'); }
+
+function confirmAddLocation() {
+  const name = document.getElementById('modal-input').value.trim();
+  if (!name) return;
+  const id = 'loc_' + Date.now();
+  state.locations.push({ id, name, monitors: [{ id: id + '_1', name: '1번 모니터', slides: [], duration: 5 }] });
+  state.activeLocationId = id;
+  saveToStorage();
+  closeModal();
+  renderSidebar();
+  renderMain();
+}
+
+function renderMain() {
+  const loc = state.locations.find(l => l.id === state.activeLocationId);
+  const title = document.getElementById('main-title');
+  const grid = document.getElementById('monitors-grid');
+  const bBtn = document.getElementById('broadcast-btn');
+
+  if (!loc) {
+    title.innerHTML = '장소를 선택하세요 <span>← 왼쪽에서 선택</span>';
+    grid.innerHTML = '';
+    bBtn.style.display = 'none';
+    return;
+  }
+
+  title.innerHTML = `${loc.name} <span>모니터 ${loc.monitors.length}대</span>`;
+  bBtn.style.display = 'flex';
+
+  grid.innerHTML = loc.monitors.map(mon => renderMonitorCard(loc.id, mon)).join('') +
+    `<button class="add-monitor-btn" onclick="addMonitor('${loc.id}')">🖥️ 모니터 추가</button>`;
+
+  loc.monitors.forEach(mon => setupDropZone(loc.id, mon.id));
+}
+
+function renderMonitorCard(locId, mon) {
+  const { user, repo } = state.settings;
+  const signageUrl = `https://${user}.github.io/${repo}/index.html?id=${mon.id}`;
+
+  const slidesHTML = mon.slides.length === 0
+    ? `<div class="no-slides">이미지 없음<br><small>아래에서 추가하세요</small></div>`
+    : mon.slides.map((s, i) => `
+        <div class="slide-item">
+          <img class="slide-thumb" src="${s.url || ''}" onerror="this.style.opacity='0.3'" />
+          <span class="slide-name">${s.name}</span>
+          <button class="slide-del" onclick="removeSlide('${mon.id}', ${i})">✕</button>
+        </div>`).join('');
+
+  return `
+    <div class="monitor-card" id="card-${mon.id}">
+      <div class="monitor-header">
+        <span class="monitor-icon">🖥️</span>
+        <input class="monitor-name-input" value="${mon.name}" onchange="renameMonitor('${mon.id}', this.value)" />
+        <button class="delete-monitor-btn" onclick="deleteMonitor('${locId}', '${mon.id}')">🗑</button>
+      </div>
+      <div class="slides-area">
+        <div class="slides-label">슬라이드 <span>${mon.slides.length}장</span></div>
+        <div class="slides-list" id="slides-${mon.id}">${slidesHTML}</div>
+        <div class="drop-zone" id="dz-${mon.id}">
+          <input type="file" accept="image/*" multiple onchange="handleFiles('${mon.id}', this.files)" />
+          <div class="dz-icon">📸</div>
+          <p>사진 추가 (여러 장 가능)</p>
+        </div>
+      </div>
+      <div class="slide-settings">
+        <label>슬라이드 간격</label>
+        <input type="number" min="1" max="300" value="${mon.duration}" onchange="setDuration('${mon.id}', this.value)" />
+        <span class="unit">초</span>
+      </div>
+      <div class="monitor-footer">
+        <button class="send-btn" id="btn-${mon.id}" onclick="sendMonitor('${mon.id}')">🚀 이 모니터에 전송</button>
+      </div>
+      <div style="padding: 0 20px 16px;">
+        <div style="font-size:10px; color:var(--text-dim); margin-bottom:4px;">사이니지 URL</div>
+        <div class="signage-url">${signageUrl}</div>
+      </div>
+    </div>`;
+}
+
+function setupDropZone(locId, monId) {
+  const dz = document.getElementById('dz-' + monId);
+  if (!dz) return;
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag-over'); handleFiles(monId, e.dataTransfer.files); });
+}
+
+// 파일 처리 - fileMap에 임시 저장
+const fileMap = {}; // monId -> [File, ...]
+
+async function handleFiles(monId, files) {
+  const mon = findMonitor(monId);
+  if (!mon) return;
+  if (!fileMap[monId]) fileMap[monId] = [];
+
+  for (const file of Array.from(files)) {
+    if (!file.type.startsWith('image/')) continue;
+    const url = await fileToDataUrl(file);
+    mon.slides.push({ name: file.name, url, uploaded: false });
+    fileMap[monId].push(file);
+  }
+  renderMain();
+}
+
+function fileToDataUrl(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
   });
+}
 
-  // URL 미리보기
-  function previewUrl() {
-    const url = document.getElementById('image-url').value.trim();
-    if (!url) return;
-    selectedFile = null;
-    document.getElementById('preview-img').src = url;
-    document.getElementById('preview-wrap').style.display = 'block';
+function findMonitor(monId) {
+  for (const loc of state.locations) {
+    const m = loc.monitors.find(m => m.id === monId);
+    if (m) return m;
   }
+  return null;
+}
 
-  // 알림 표시
-  function showAlert(msg, type) {
-    const el = document.getElementById('alert');
-    el.textContent = msg;
-    el.className = type === 'success' ? 'alert-success' : 'alert-error';
-    el.style.display = 'block';
-    setTimeout(() => { el.style.display = 'none'; }, 5000);
-  }
+function removeSlide(monId, idx) {
+  const mon = findMonitor(monId);
+  if (!mon) return;
+  mon.slides.splice(idx, 1);
+  if (fileMap[monId]) fileMap[monId].splice(idx, 1);
+  renderMain();
+}
 
-  // 사이니지로 전송
-  async function sendToSignage() {
-    const user = document.getElementById('github-user').value.trim();
-    const repo = document.getElementById('github-repo').value.trim();
-    const token = document.getElementById('github-token').value.trim();
-    const urlInput = document.getElementById('image-url').value.trim();
+function setDuration(monId, val) {
+  const mon = findMonitor(monId);
+  if (!mon) return;
+  mon.duration = Math.max(1, parseInt(val) || 5);
+  saveToStorage();
+}
 
-    if (!token) {
-      showAlert('❌ GitHub Token을 입력해주세요!', 'error');
-      return;
-    }
+function renameMonitor(monId, name) {
+  const mon = findMonitor(monId);
+  if (!mon) return;
+  mon.name = name;
+  saveToStorage();
+  renderSidebar();
+}
 
-    const btn = document.getElementById('send-btn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> 전송 중...';
+function addMonitor(locId) {
+  const loc = state.locations.find(l => l.id === locId);
+  if (!loc) return;
+  const n = loc.monitors.length + 1;
+  loc.monitors.push({ id: locId + '_' + Date.now(), name: n + '번 모니터', slides: [], duration: 5 });
+  saveToStorage();
+  renderMain();
+  renderSidebar();
+}
 
-    try {
-      let finalImageUrl = '';
+function deleteMonitor(locId, monId) {
+  const loc = state.locations.find(l => l.id === locId);
+  if (!loc) return;
+  if (loc.monitors.length <= 1) { showToast('❌ 최소 1대는 있어야 합니다', 'error'); return; }
+  loc.monitors = loc.monitors.filter(m => m.id !== monId);
+  delete fileMap[monId];
+  saveToStorage();
+  renderMain();
+  renderSidebar();
+}
 
-      if (selectedFile) {
-        // 파일을 GitHub에 업로드
-        finalImageUrl = await uploadImageToGitHub(user, repo, token, selectedFile);
-      } else if (urlInput) {
-        finalImageUrl = urlInput;
-      } else {
-        showAlert('❌ 사진을 선택하거나 URL을 입력해주세요!', 'error');
-        btn.disabled = false;
-        btn.innerHTML = '🚀 사이니지 화면 변경하기';
-        return;
+async function sendMonitor(monId) {
+  const { user, repo, token } = state.settings;
+  if (!token) { showToast('❌ GitHub Token을 먼저 설정하고 저장하세요!', 'error'); return; }
+
+  const mon = findMonitor(monId);
+  if (!mon) return;
+  if (mon.slides.length === 0) { showToast('❌ 슬라이드 이미지를 추가해주세요!', 'error'); return; }
+
+  const btn = document.getElementById('btn-' + monId);
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> 업로드 중...';
+
+  try {
+    const urls = [];
+    const files = fileMap[monId] || [];
+    let fileIdx = 0;
+
+    for (let i = 0; i < mon.slides.length; i++) {
+      const slide = mon.slides[i];
+      if (slide.url && slide.url.startsWith('data:')) {
+        btn.innerHTML = `<span class="spinner"></span> ${i+1}/${mon.slides.length} 업로드 중...`;
+        const base64 = slide.url.split(',')[1];
+        const fileName = `images/${monId}_${Date.now()}_${i}_${slide.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+        const uploadedUrl = await uploadFile(user, repo, token, fileName, base64);
+        urls.push(uploadedUrl);
+        mon.slides[i].url = uploadedUrl;
+        mon.slides[i].uploaded = true;
+      } else if (slide.url) {
+        urls.push(slide.url);
       }
-
-      // current.txt 파일 업데이트
-      await updateCurrentFile(user, repo, token, finalImageUrl);
-
-      showAlert('✅ 전송 완료! 30초 내에 사이니지 화면이 바뀝니다.', 'success');
-
-      const info = document.getElementById('current-info');
-      info.style.display = 'block';
-      info.innerHTML = `<strong>현재 표시 중:</strong> ${finalImageUrl}`;
-
-    } catch (err) {
-      showAlert('❌ 오류: ' + err.message, 'error');
     }
 
-    btn.disabled = false;
-    btn.innerHTML = '🚀 사이니지 화면 변경하기';
+    const data = JSON.stringify({ slides: urls, duration: mon.duration });
+    await updateFile(user, repo, token, `data/${monId}.json`, data);
+
+    fileMap[monId] = [];
+    saveToStorage();
+
+    btn.className = 'send-btn success';
+    btn.innerHTML = '✅ 전송 완료!';
+    showToast(`✅ ${mon.name} 전송 완료! 30초 내로 화면이 바뀝니다.`, 'success');
+
+    setTimeout(() => {
+      if (btn) { btn.disabled = false; btn.className = 'send-btn'; btn.innerHTML = '🚀 이 모니터에 전송'; }
+    }, 3000);
+
+  } catch(err) {
+    btn.className = 'send-btn error-state';
+    btn.innerHTML = '❌ 오류 발생';
+    showToast('❌ ' + err.message, 'error');
+    setTimeout(() => {
+      if (btn) { btn.disabled = false; btn.className = 'send-btn'; btn.innerHTML = '🚀 이 모니터에 전송'; }
+    }, 3000);
   }
+}
 
-  // GitHub에 이미지 파일 업로드
-  async function uploadImageToGitHub(user, repo, token, file) {
-    const base64 = await fileToBase64(file);
-    const fileName = `images/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
-    const apiUrl = `https://api.github.com/repos/${user}/${repo}/contents/${fileName}`;
+async function broadcastAll() {
+  const loc = state.locations.find(l => l.id === state.activeLocationId);
+  if (!loc) return;
+  for (const mon of loc.monitors) await sendMonitor(mon.id);
+}
 
-    const res = await fetch(apiUrl, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `token ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        message: '이미지 업로드',
-        content: base64,
-      })
-    });
+async function uploadFile(user, repo, token, path, base64) {
+  const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`, {
+    method: 'PUT',
+    headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: '이미지 업로드', content: base64 })
+  });
+  if (!res.ok) { const e = await res.json(); throw new Error(e.message || '업로드 실패'); }
+  return (await res.json()).content.download_url;
+}
 
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.message || '이미지 업로드 실패');
-    }
+async function updateFile(user, repo, token, path, content) {
+  const url = `https://api.github.com/repos/${user}/${repo}/contents/${path}`;
+  let sha = null;
+  try { const ex = await fetch(url, { headers: { 'Authorization': `token ${token}` } }); if (ex.ok) sha = (await ex.json()).sha; } catch(e) {}
+  const body = { message: '슬라이드 업데이트', content: btoa(unescape(encodeURIComponent(content))) };
+  if (sha) body.sha = sha;
+  const res = await fetch(url, { method: 'PUT', headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (!res.ok) { const e = await res.json(); throw new Error(e.message || '업데이트 실패'); }
+}
 
-    const data = await res.json();
-    return data.content.download_url;
-  }
+function showToast(msg, type = '') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = type;
+  el.style.display = 'block';
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
 
-  // current.txt 업데이트
-  async function updateCurrentFile(user, repo, token, imageUrl) {
-    const apiUrl = `https://api.github.com/repos/${user}/${repo}/contents/current.txt`;
+document.getElementById('modal-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') confirmAddLocation();
+  if (e.key === 'Escape') closeModal();
+});
 
-    // 기존 파일 SHA 가져오기 (업데이트 시 필요)
-    let sha = null;
-    try {
-      const existing = await fetch(apiUrl, {
-        headers: { 'Authorization': `token ${token}` }
-      });
-      if (existing.ok) {
-        const data = await existing.json();
-        sha = data.sha;
-      }
-    } catch (e) {}
-
-    const body = {
-      message: '사이니지 이미지 업데이트',
-      content: btoa(imageUrl),
-    };
-    if (sha) body.sha = sha;
-
-    const res = await fetch(apiUrl, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `token ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body)
-    });
-
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.message || 'current.txt 업데이트 실패');
-    }
-  }
-
-  // 파일을 base64로 변환
-  function fileToBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result.split(',')[1]);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  }
+init();
 </script>
 </body>
 </html>
