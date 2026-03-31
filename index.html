@@ -3,30 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Signage Display</title>
+<title>Signage</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:#000; width:100vw; height:100vh; overflow:hidden; }
 
-#slideshow {
-  width:100vw; height:100vh;
-  position:relative; overflow:hidden;
-}
+#stage { width:100vw; height:100vh; position:relative; overflow:hidden; }
 
 .slide {
   position:absolute; inset:0;
   display:flex; align-items:center; justify-content:center;
-  background:#111;
-  transform: translateX(100%);
-  transition: transform 0.7s cubic-bezier(0.77, 0, 0.175, 1);
+  background:#000;
+  transform:translateX(100%);
+  transition:transform 0.6s cubic-bezier(0.77,0,0.175,1);
 }
-.slide.active { transform: translateX(0); }
-.slide.exit { transform: translateX(-100%); }
+.slide.active { transform:translateX(0); }
+.slide.exit   { transform:translateX(-100%); }
 
 .slide img {
   width:100%; height:100%;
-  object-fit: contain;
-  display:block;
+  object-fit:contain; display:block;
+}
+.slide video {
+  width:100%; height:100%;
+  object-fit:contain; display:block;
+  background:#000;
 }
 
 /* 빈 화면 */
@@ -39,7 +40,7 @@ body { background:#000; width:100vw; height:100vh; overflow:hidden; }
 #empty .icon { font-size:64px; }
 #empty p { font-size:16px; letter-spacing:0.1em; font-family:sans-serif; }
 
-/* 상태 표시 */
+/* 상태 */
 #status {
   position:fixed; bottom:16px; right:16px;
   background:rgba(0,0,0,0.5); color:#444;
@@ -47,18 +48,17 @@ body { background:#000; width:100vw; height:100vh; overflow:hidden; }
   font-family:monospace; z-index:99;
 }
 
-/* 진행 바 */
+/* 진행 바 (이미지일 때만) */
 #progress-bar {
   position:fixed; bottom:0; left:0;
-  height:3px; background:rgba(255,255,255,0.15);
-  transition:width linear;
-  z-index:99;
+  height:3px; background:rgba(255,255,255,0.2);
+  z-index:99; width:0%;
 }
 </style>
 </head>
 <body>
 
-<div id="slideshow">
+<div id="stage">
   <div id="empty">
     <div class="icon">🖥️</div>
     <p>이미지를 기다리는 중...</p>
@@ -66,132 +66,155 @@ body { background:#000; width:100vw; height:100vh; overflow:hidden; }
 </div>
 
 <div id="status">● 연결 중...</div>
-<div id="progress-bar" style="width:0%"></div>
+<div id="progress-bar"></div>
 
 <script>
-// URL 파라미터에서 모니터 ID 읽기
 function getMonitorId() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get('id') || 'default';
+  return new URLSearchParams(window.location.search).get('id') || 'default';
 }
 
 const GITHUB_USER = 'zooz8624-afk';
 const GITHUB_REPO = 'signage';
-const MONITOR_ID = getMonitorId();
-const DATA_URL = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/data/${MONITOR_ID}.json`;
+const MONITOR_ID  = getMonitorId();
+const DATA_URL    = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/data/${MONITOR_ID}.json`;
 
-let slides = [];
-let duration = 5; // 초
-let currentIndex = 0;
-let slideTimer = null;
-let progressTimer = null;
-let progressStart = null;
+let items    = [];   // [{type:'image'|'video', url:'...'}]
+let duration = 5;    // 이미지 표시 시간 (초)
+let current  = 0;    // 현재 인덱스
+let slideTimer   = null;
+let lastDataStr  = '';
 
-// ==================== 슬라이드쇼 ====================
-function startSlideshow(newSlides, newDuration) {
-  slides = newSlides;
-  duration = newDuration || 5;
-  currentIndex = 0;
-
-  document.getElementById('empty').style.display = 'none';
-  clearExistingSlides();
-  buildSlide(0, true);
-  scheduleNext();
-}
-
-function clearExistingSlides() {
-  const ss = document.getElementById('slideshow');
-  const existing = ss.querySelectorAll('.slide');
-  existing.forEach(el => el.remove());
+// ==================== 슬라이드 빌드 ====================
+function clearStage() {
+  const stage = document.getElementById('stage');
+  stage.querySelectorAll('.slide').forEach(el => el.remove());
 }
 
 function buildSlide(idx, isFirst) {
-  const ss = document.getElementById('slideshow');
-  const el = document.createElement('div');
+  const stage = document.getElementById('stage');
+  const item  = items[idx];
+  const el    = document.createElement('div');
   el.className = 'slide' + (isFirst ? ' active' : '');
   el.id = 'slide-' + idx;
 
-  const img = document.createElement('img');
-  img.src = slides[idx] + '?t=' + Date.now();
-  img.alt = '';
-  el.appendChild(img);
-  ss.appendChild(el);
+  if (item.type === 'video') {
+    const video = document.createElement('video');
+    video.src       = item.url;
+    video.autoplay  = true;
+    video.muted     = true;
+    video.playsInline = true;
+    video.loop      = false;
+    video.onended   = () => goNext(); // 동영상 끝나면 다음으로
+    el.appendChild(video);
+  } else {
+    const img = document.createElement('img');
+    img.src = item.url + '?t=' + Date.now();
+    el.appendChild(img);
+  }
+
+  stage.appendChild(el);
   return el;
 }
 
-function nextSlide() {
-  if (slides.length <= 1) { scheduleNext(); return; }
+function goNext() {
+  clearTimeout(slideTimer);
+  stopProgressBar();
 
-  const oldIdx = currentIndex;
-  currentIndex = (currentIndex + 1) % slides.length;
+  if (items.length <= 1) {
+    scheduleItem(0, true); return;
+  }
+
+  const oldIdx = current;
+  current = (current + 1) % items.length;
 
   const oldEl = document.getElementById('slide-' + oldIdx);
-  const newEl = buildSlide(currentIndex, false);
+  const newEl = buildSlide(current, false);
 
-  // 슬라이드 애니메이션
+  // 비디오 재생 시작
+  const vid = newEl.querySelector('video');
+  if (vid) vid.play().catch(() => {});
+
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       if (oldEl) oldEl.classList.add('exit');
       newEl.classList.add('active');
-
-      setTimeout(() => {
-        if (oldEl) oldEl.remove();
-      }, 750);
+      setTimeout(() => { if (oldEl) oldEl.remove(); }, 700);
     });
   });
 
-  scheduleNext();
+  scheduleItem(current, false);
 }
 
-function scheduleNext() {
-  clearTimeout(slideTimer);
-  slideTimer = setTimeout(nextSlide, duration * 1000);
-  startProgressBar();
+function scheduleItem(idx, isFirst) {
+  const item = items[idx];
+  if (!item) return;
+
+  if (item.type === 'image') {
+    // 이미지: duration초 후 다음
+    startProgressBar(duration);
+    slideTimer = setTimeout(goNext, duration * 1000);
+  }
+  // 동영상: video.onended 에서 처리 (타이머 없음)
 }
 
-function startProgressBar() {
+// ==================== 진행 바 ====================
+function startProgressBar(sec) {
   const bar = document.getElementById('progress-bar');
   bar.style.transition = 'none';
   bar.style.width = '0%';
-
-  clearInterval(progressTimer);
   requestAnimationFrame(() => {
-    bar.style.transition = `width ${duration}s linear`;
+    bar.style.transition = `width ${sec}s linear`;
     bar.style.width = '100%';
   });
 }
 
-// ==================== 서버에서 데이터 가져오기 ====================
-let lastDataStr = '';
+function stopProgressBar() {
+  const bar = document.getElementById('progress-bar');
+  bar.style.transition = 'none';
+  bar.style.width = '0%';
+}
 
-async function checkForUpdate() {
+// ==================== 시작 ====================
+function startShow(newItems, newDuration) {
+  items    = newItems;
+  duration = newDuration || 5;
+  current  = 0;
+
+  clearTimeout(slideTimer);
+  stopProgressBar();
+  clearStage();
+  document.getElementById('empty').style.display = 'none';
+
+  const el = buildSlide(0, true);
+  const vid = el.querySelector('video');
+  if (vid) vid.play().catch(() => {});
+
+  scheduleItem(0, true);
+}
+
+// ==================== 업데이트 감지 ====================
+async function checkUpdate() {
   try {
     const res = await fetch(DATA_URL + '?t=' + Date.now());
-    if (!res.ok) {
-      document.getElementById('status').textContent = '● 데이터 없음';
-      return;
-    }
+    if (!res.ok) { document.getElementById('status').textContent = '● 데이터 없음'; return; }
 
-    const dataStr = await res.text();
-    if (dataStr === lastDataStr) return; // 변경 없음
-    lastDataStr = dataStr;
+    const text = await res.text();
+    if (text === lastDataStr) return;
+    lastDataStr = text;
 
-    const data = JSON.parse(dataStr);
-    if (!data.slides || data.slides.length === 0) return;
+    const data = JSON.parse(text);
+    if (!data.items || data.items.length === 0) return;
 
-    startSlideshow(data.slides, data.duration);
-    document.getElementById('status').textContent = '● 업데이트 ' + new Date().toLocaleTimeString('ko-KR');
+    startShow(data.items, data.duration);
+    document.getElementById('status').textContent = '● ' + new Date().toLocaleTimeString('ko-KR');
 
   } catch(e) {
     document.getElementById('status').textContent = '● 연결 오류';
   }
 }
 
-// 처음 실행
-checkForUpdate();
-
-// 30초마다 업데이트 확인
-setInterval(checkForUpdate, 30000);
+checkUpdate();
+setInterval(checkUpdate, 30000);
 </script>
 </body>
 </html>
