@@ -2,28 +2,12 @@
   "items": [
     {
       "type": "image",
-      "url": "https://raw.githubusercontent.com/zooz8624-afk/signage/main/media/sillim_1_0_1776393593111.png"
-    },
-    {
-      "type": "image",
-      "url": "https://raw.githubusercontent.com/zooz8624-afk/signage/main/media/sillim_1_1_1776393596352.png"
-    },
-    {
-      "type": "image",
       "url": "https://raw.githubusercontent.com/zooz8624-afk/signage/main/media/sillim_1_2_1776393601613.png"
     },
     {
       "type": "image",
       "url": "https://raw.githubusercontent.com/zooz8624-afk/signage/main/media/sillim_1_3_1776393604071.png"
-    },
-    {
-      "type": "image",
-      "url": "https://raw.githubusercontent.com/zooz8624-afk/signage/main/media/sillim_1_4_1776393607022.png"
-    },
-    {
-      "type": "image",
-      "url": "https://raw.githubusercontent.com/zooz8624-afk/signage/main/media/sillim_1_5_1776393614668.png"
     }
   ],
-  "duration": 5
+  "duration": 7
 }
