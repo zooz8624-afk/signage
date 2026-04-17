@@ -8,17 +8,46 @@
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:#000; width:100vw; height:100vh; overflow:hidden; }
 
-#stage { width:100vw; height:100vh; position:relative; overflow:hidden; }
+#stage { width:100vw; height:100vh; position:relative; }
 
+/* 슬라이드 — 기본은 뒤에 숨어있음 */
 .slide {
   position:absolute; inset:0;
   display:flex; align-items:center; justify-content:center;
   background:#000;
-  transform:translateX(100%);
-  transition:transform 0.6s cubic-bezier(0.77,0,0.175,1);
+  opacity: 0;
+  z-index: 1;
+  transition: none;
 }
-.slide.active { transform:translateX(0); }
-.slide.exit   { transform:translateX(-100%); }
+
+/* 나가는 슬라이드 — 앞에 있다가 오른쪽으로 밀려남 */
+.slide.exit {
+  z-index: 2;
+  opacity: 1;
+  transform: translateX(0);
+  transition: transform 0.6s cubic-bezier(0.77,0,0.175,1);
+}
+.slide.exit.go {
+  transform: translateX(-100%);
+}
+
+/* 들어오는 슬라이드 — 오른쪽에서 들어옴 */
+.slide.enter {
+  z-index: 3;
+  opacity: 1;
+  transform: translateX(100%);
+  transition: transform 0.6s cubic-bezier(0.77,0,0.175,1);
+}
+.slide.enter.go {
+  transform: translateX(0);
+}
+
+/* 현재 보이는 슬라이드 */
+.slide.active {
+  z-index: 2;
+  opacity: 1;
+  transform: translateX(0);
+}
 
 .slide img {
   width:100%; height:100%;
@@ -35,7 +64,7 @@ body { background:#000; width:100vw; height:100vh; overflow:hidden; }
   position:absolute; inset:0;
   display:flex; flex-direction:column;
   align-items:center; justify-content:center;
-  color:#333; gap:16px;
+  color:#333; gap:16px; z-index:0;
 }
 #empty .icon { font-size:64px; }
 #empty p { font-size:16px; letter-spacing:0.1em; font-family:sans-serif; }
@@ -48,7 +77,7 @@ body { background:#000; width:100vw; height:100vh; overflow:hidden; }
   font-family:monospace; z-index:99;
 }
 
-/* 진행 바 (이미지일 때만) */
+/* 진행 바 */
 #progress-bar {
   position:fixed; bottom:0; left:0;
   height:3px; background:rgba(255,255,255,0.2);
@@ -78,33 +107,25 @@ const GITHUB_REPO = 'signage';
 const MONITOR_ID  = getMonitorId();
 const DATA_URL    = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/data/${MONITOR_ID}.json`;
 
-let items    = [];   // [{type:'image'|'video', url:'...'}]
-let duration = 5;    // 이미지 표시 시간 (초)
-let current  = 0;    // 현재 인덱스
-let slideTimer   = null;
-let lastDataStr  = '';
+let items       = [];
+let duration    = 5;
+let current     = 0;
+let isAnimating = false;
+let slideTimer  = null;
+let lastDataStr = '';
 
-// ==================== 슬라이드 빌드 ====================
-function clearStage() {
-  const stage = document.getElementById('stage');
-  stage.querySelectorAll('.slide').forEach(el => el.remove());
-}
-
-function buildSlide(idx, isFirst) {
-  const stage = document.getElementById('stage');
-  const item  = items[idx];
-  const el    = document.createElement('div');
-  el.className = 'slide' + (isFirst ? ' active' : '');
-  el.id = 'slide-' + idx;
+// ==================== 슬라이드 생성 ====================
+function createSlide(item) {
+  const el = document.createElement('div');
+  el.className = 'slide';
 
   if (item.type === 'video') {
     const video = document.createElement('video');
-    video.src       = item.url;
-    video.autoplay  = true;
-    video.muted     = true;
+    video.src        = item.url;
+    video.autoplay   = false; // 나중에 수동으로 play()
+    video.muted      = true;
     video.playsInline = true;
-    video.loop      = false;
-    video.onended   = () => goNext(); // 동영상 끝나면 다음으로
+    video.loop       = false;
     el.appendChild(video);
   } else {
     const img = document.createElement('img');
@@ -112,49 +133,114 @@ function buildSlide(idx, isFirst) {
     el.appendChild(img);
   }
 
-  stage.appendChild(el);
   return el;
 }
 
-function goNext() {
+// ==================== 전환 애니메이션 ====================
+function transitionTo(nextIdx, callback) {
+  if (isAnimating) return;
+  isAnimating = true;
+
+  const stage = document.getElementById('stage');
+  const currentEl = stage.querySelector('.slide.active');
+  const nextItem  = items[nextIdx];
+
+  // 다음 슬라이드 미리 준비 (오른쪽 대기)
+  const nextEl = createSlide(nextItem);
+  nextEl.classList.add('enter');
+  stage.appendChild(nextEl);
+
+  // 비디오 미리 로드
+  const vid = nextEl.querySelector('video');
+  if (vid) vid.load();
+
+  // 한 프레임 후 애니메이션 시작
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      // 현재 슬라이드 → exit으로 변경
+      if (currentEl) {
+        currentEl.classList.remove('active');
+        currentEl.classList.add('exit');
+        requestAnimationFrame(() => currentEl.classList.add('go'));
+      }
+
+      // 새 슬라이드 → 오른쪽에서 진입
+      nextEl.classList.add('go');
+
+      // 애니메이션 완료 후 정리
+      setTimeout(() => {
+        if (currentEl) currentEl.remove();
+        nextEl.classList.remove('enter', 'go');
+        nextEl.classList.add('active');
+
+        // 비디오 재생
+        if (vid) vid.play().catch(() => {});
+
+        isAnimating = false;
+        current = nextIdx;
+        callback && callback();
+      }, 650);
+    });
+  });
+}
+
+// ==================== 슬라이드 스케줄 ====================
+function scheduleCurrentItem() {
   clearTimeout(slideTimer);
   stopProgressBar();
 
-  if (items.length <= 1) {
-    scheduleItem(0, true); return;
-  }
-
-  const oldIdx = current;
-  current = (current + 1) % items.length;
-
-  const oldEl = document.getElementById('slide-' + oldIdx);
-  const newEl = buildSlide(current, false);
-
-  // 비디오 재생 시작
-  const vid = newEl.querySelector('video');
-  if (vid) vid.play().catch(() => {});
-
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      if (oldEl) oldEl.classList.add('exit');
-      newEl.classList.add('active');
-      setTimeout(() => { if (oldEl) oldEl.remove(); }, 700);
-    });
-  });
-
-  scheduleItem(current, false);
-}
-
-function scheduleItem(idx, isFirst) {
-  const item = items[idx];
+  const item = items[current];
   if (!item) return;
 
   if (item.type === 'image') {
-    // 이미지: duration초 후 다음
     startProgressBar(duration);
-    slideTimer = setTimeout(goNext, duration * 1000);
+    slideTimer = setTimeout(() => {
+      const next = (current + 1) % items.length;
+      transitionTo(next, scheduleCurrentItem);
+    }, duration * 1000);
+  } else {
+    // 동영상: onended 에서 처리
+    const stage = document.getElementById('stage');
+    const activeEl = stage.querySelector('.slide.active');
+    const vid = activeEl && activeEl.querySelector('video');
+    if (vid) {
+      vid.onended = () => {
+        const next = (current + 1) % items.length;
+        transitionTo(next, scheduleCurrentItem);
+      };
+      // 혹시 이미 끝났으면 대비
+      if (vid.ended) {
+        const next = (current + 1) % items.length;
+        transitionTo(next, scheduleCurrentItem);
+      }
+    }
   }
-  // 동영상: video.onended 에서 처리 (타이머 없음)
+}
+
+// ==================== 첫 슬라이드 시작 ====================
+function startShow(newItems, newDuration) {
+  items    = newItems;
+  duration = newDuration || 5;
+  current  = 0;
+  isAnimating = false;
+
+  clearTimeout(slideTimer);
+  stopProgressBar();
+
+  // 기존 슬라이드 전부 제거
+  const stage = document.getElementById('stage');
+  stage.querySelectorAll('.slide').forEach(el => el.remove());
+  document.getElementById('empty').style.display = 'none';
+
+  // 첫 슬라이드 바로 표시
+  const firstEl = createSlide(items[0]);
+  firstEl.classList.add('active');
+  stage.appendChild(firstEl);
+
+  const vid = firstEl.querySelector('video');
+  if (vid) vid.play().catch(() => {});
+
+  scheduleCurrentItem();
 }
 
 // ==================== 진행 바 ====================
@@ -163,8 +249,10 @@ function startProgressBar(sec) {
   bar.style.transition = 'none';
   bar.style.width = '0%';
   requestAnimationFrame(() => {
-    bar.style.transition = `width ${sec}s linear`;
-    bar.style.width = '100%';
+    requestAnimationFrame(() => {
+      bar.style.transition = `width ${sec}s linear`;
+      bar.style.width = '100%';
+    });
   });
 }
 
@@ -174,36 +262,28 @@ function stopProgressBar() {
   bar.style.width = '0%';
 }
 
-// ==================== 시작 ====================
-function startShow(newItems, newDuration) {
-  items    = newItems;
-  duration = newDuration || 5;
-  current  = 0;
-
-  clearTimeout(slideTimer);
-  stopProgressBar();
-  clearStage();
-  document.getElementById('empty').style.display = 'none';
-
-  const el = buildSlide(0, true);
-  const vid = el.querySelector('video');
-  if (vid) vid.play().catch(() => {});
-
-  scheduleItem(0, true);
-}
-
 // ==================== 업데이트 감지 ====================
 async function checkUpdate() {
   try {
     const res = await fetch(DATA_URL + '?t=' + Date.now());
-    if (!res.ok) { document.getElementById('status').textContent = '● 데이터 없음'; return; }
+    if (!res.ok) {
+      document.getElementById('status').textContent = '● 데이터 없음';
+      return;
+    }
 
     const text = await res.text();
     if (text === lastDataStr) return;
     lastDataStr = text;
 
     const data = JSON.parse(text);
-    if (!data.items || data.items.length === 0) return;
+    if (!data.items || data.items.length === 0) {
+      // 빈 슬라이드 — 검정 화면
+      const stage = document.getElementById('stage');
+      stage.querySelectorAll('.slide').forEach(el => el.remove());
+      document.getElementById('empty').style.display = 'flex';
+      clearTimeout(slideTimer);
+      return;
+    }
 
     startShow(data.items, data.duration);
     document.getElementById('status').textContent = '● ' + new Date().toLocaleTimeString('ko-KR');
